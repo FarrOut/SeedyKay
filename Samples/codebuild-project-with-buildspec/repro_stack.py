@@ -28,4 +28,6 @@ class ReproStack(cdk.Stack):
 
         project = cb.Project(self, 'BobTheBuilder',
         build_spec = buildspec,
+        environment={
+            "build_image": cb.LinuxBuildImage.STANDARD_5_0},
         )
