@@ -1,6 +1,5 @@
 using Amazon.CDK;
-// using Amazon.CDK.AWS.WAF;
-using Amazon.CDK.AWS.WAFv2;
+using Amazon.CDK.AWS.WAF;
 
 namespace Sample
 {
@@ -21,10 +20,6 @@ namespace Sample
                Value = WebACL.Name,
                Description = "WebACL Name."
                });
-             // new CfnOutput(this, "WebACLDefaultActionOutput", new CfnOutputProps{
-             //   Value = WebACL.DefaultAction,
-             //   Description = "WebACL DefaultAction."
-             //   });
         }
     }
 }
