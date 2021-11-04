@@ -1,0 +1,110 @@
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  LayerName:
+    Description: 'Name of layer to find the latest version for.'
+    Type: String
+    Default: 'stack-a--layer'
+  Bucket:
+    Type: String
+    Description: 'S3 Bucket of source content.'
+  Key:
+    Type: String
+    Description: 'S3 key of source bundle.'
+
+Resources:
+  MyAwesomeLamdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: script.main
+      Runtime: python3.8
+      CodeUri:
+        Bucket: !Ref Bucket
+        Key: !Ref Key
+      FunctionName: !Sub
+        - ${StackName}--functions
+        - { StackName: !Ref "AWS::StackName" }
+      Layers:
+        - !GetAtt CustomGetLatestLayerVersion.LatestLayerVersionArn
+
+  CustomGetLatestLayerVersion:
+    Type: Custom::Function
+    Properties:
+      ServiceToken: !GetAtt GetLatestLayerVersionFunction.Arn
+      LayerName: !Ref LayerName
+
+  LambdaServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 'lambda:ListLayerVersions'
+                Resource: '*'
+
+  GetLatestLayerVersionFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Runtime: python3.8
+      Role: !GetAtt LambdaServiceRole.Arn
+      Code:
+        ZipFile: |
+          import boto3
+          import logging
+          import cfnresponse
+
+          logger = logging.getLogger(__name__)
+          logger.setLevel(logging.DEBUG)
+
+          lambda_ = boto3.client('lambda')
+
+          def handler(event, context) -> str:
+            layer_name = str(event['ResourceProperties']['LayerName'])
+
+            try:
+              latest_version_arn = get_latest_layer_version(layer_name)
+
+              responseData = {}
+              responseData['LatestLayerVersionArn'] = latest_version_arn
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, "LatestLayerVersionArn")
+            except Exception:
+              logger.exception('Signaling failure to CloudFormation.')
+              cfnresponse.send(event, context, cfnresponse.FAILED, {})
+
+          def get_latest_layer_version(layer_name) -> str:
+              logger.info('Fetching layer versions of function: {}'.format(layer_name))
+
+              response = lambda_.list_layer_versions(
+              LayerName=layer_name,
+              MaxItems=3,
+              )
+
+              versions = response['LayerVersions']
+              logger.debug('Found {} layer versions'.format(len(versions)))
+              first_version = versions[0]
+
+              latest_version_arn = first_version['LayerVersionArn']
+              logger.info('Latest layer version found: {}'.format(latest_version_arn))
+
+              return latest_version_arn
+
+      FunctionName: GetLatestLayerVersion

@@ -1,0 +1,29 @@
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  Bucket:
+    Type: String
+    Description: 'S3 Bucket of source content.'
+  Key:
+    Type: String
+    Description: 'S3 key of source bundle.'
+
+Resources:
+  MyAwesomeLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub
+        - ${StackName}--layer
+        - { StackName: !Ref "AWS::StackName" }
+      Description: Lambda Layer containing my dependencies
+      ContentUri:
+        Bucket: !Ref Bucket
+        Key: !Ref Key
+      CompatibleRuntimes:
+        - python3.6
+        - python3.7
+        - python3.8
+      RetentionPolicy: Retain
+
+Outputs:
+  MyAwesomeLambdaLayer:
+    Value: !Ref MyAwesomeLambdaLayer
