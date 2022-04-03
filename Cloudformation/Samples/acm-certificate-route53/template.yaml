@@ -1,0 +1,28 @@
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: A fully qualified domain name (FQDN) in the certificate request.
+
+Resources:
+  Cert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      CertificateTransparencyLoggingPreference: DISABLED
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZone
+      SubjectAlternativeNames:
+        - !Join
+          - .
+          - - '*'
+            - !Ref DomainName
+
+  HostedZone:
+    Type: 'AWS::Route53::HostedZone'
+    Properties:
+      HostedZoneConfig:
+        Comment: hostedZoneName for testing
+      Name: !Ref DomainName
