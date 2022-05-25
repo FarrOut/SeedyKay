@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources: 
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: !Sub |
+          import json
+          def handler(event, context):
+            print('helloworld')
+
+      Handler: index.handler
+      Runtime: python3.7
+      Role: !GetAtt LambdaExecutionRole.Arn
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+            - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: custom_resource_policy_secretsmanager
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+
+
+
+
