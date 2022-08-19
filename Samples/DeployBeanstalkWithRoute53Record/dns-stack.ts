@@ -109,7 +109,7 @@ export class DnsStack extends cdk.Stack {
     const env = new eb.CfnEnvironment(this, 'Environment', {
       environmentName: 'MyEnvironment',
       applicationName: app.applicationName || appName,
-      solutionStackName: '64bit Amazon Linux 2 v5.4.4 running Node.js 14',
+      solutionStackName: '64bit Amazon Linux 2 v5.5.5 running Node.js 16',
       optionSettings: optionSettingProperties,
       // This line is critical - reference the label created in this same stack
       versionLabel: appVersionProps.ref,
