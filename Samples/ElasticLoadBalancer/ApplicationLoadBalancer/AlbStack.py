@@ -1,5 +1,5 @@
 from aws_cdk import (
-    # Duration,
+    Duration,
     Stack,
     aws_elasticloadbalancingv2 as elbv2,
     aws_ec2 as ec2,
@@ -45,3 +45,19 @@ class AlbStack(Stack):
                                                                   listener=listener,
                                                                   priority=123,
                                                                   )
+
+        target_group = elbv2.ApplicationTargetGroup(self, "TG1",
+                                                    target_type=elbv2.TargetType.INSTANCE,
+                                                    port=80,
+                                                    protocol=elbv2.ApplicationProtocol.HTTP,
+                                                    # health_check=health_check,
+                                                    stickiness_cookie_duration=Duration.minutes(5),
+                                                    vpc=vpc
+                                                    )
+        target_group.add_target(asg)
+
+        target_group.configure_health_check(
+            protocol=elbv2.Protocol.HTTP,
+        )
+
+        listener.add_target_groups('TargetGroups', target_groups=[target_group])
