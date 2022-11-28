@@ -1,0 +1,10 @@
+[
+    {
+      "Source": "com.mycompany.myapp",
+      "EventBusName": "TheMagicSchoolbus",
+      "Detail": "{}",
+      "Resources": [
+      ],
+      "DetailType": "myDetailType"
+    }
+  ]
