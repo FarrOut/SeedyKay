@@ -1,0 +1,124 @@
+{
+    "typeName": "AWS::SNS::Subscription",
+    "description": "The AWS::SNS::Subscription resource subscribes an endpoint to an Amazon Simple Notification Service (Amazon SNS) topic. For a subscription to be created, the owner of the endpoint must confirm the subscription.",
+    "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-rpdk.git",
+    "properties": {
+        "SubscriptionArn": {
+            "description": "This is the subscription amazon resource name generated at creation time.",
+            "type": "string"
+        },
+        "DeliveryPolicy": {
+            "description": "The delivery policy JSON assigned to the subscription. Enables the subscriber to define the message delivery retry strategy in the case of an HTTP/S endpoint subscribed to the topic. For more information, see [GetSubscriptionAttributes](https://docs.aws.amazon.com/sns/latest/api/API_GetSubscriptionAttributes.html) in the <i>Amazon Simple Notification Service API Reference</i> and [Message Delivery Retries](https://docs.aws.amazon.com/sns/latest/dg/sns-message-delivery-retries.html) in the <i>Amazon SNS Developer Guide</i>.",
+            "type": "object"
+        },
+        "Endpoint": {
+            "description": "The subscription's endpoint. The endpoint value depends on the protocol that you specify. For more information, see the Endpoint parameter of the [Subscribe](https://docs.aws.amazon.com/sns/latest/api/API_Subscribe.html) action in the <i>Amazon Simple Notification Service API Reference</i>.",
+            "type": "string"
+        },
+        "Protocol": {
+            "description": "The subscription's protocol. For more information, see the `Protocol` parameter of the [Subscribe](https://docs.aws.amazon.com/sns/latest/api/API_Subscribe.html) action in the Amazon Simple Notification Service API Reference.",
+            "type": "string",
+            "examples": [
+                "http",
+                "https",
+                "email",
+                "email-json",
+                "sms",
+                "sqs",
+                "Endpoint Arn for mobile app and device",
+                "lambda",
+                "firehose"
+            ]
+        },
+        "RawMessageDelivery": {
+            "description": "When set to `true`, enables raw message delivery. Raw messages don't contain any JSON formatting and can be sent to Amazon SQS and HTTP/S endpoints. For more information, see [GetSubscriptionAttributes](https://docs.aws.amazon.com/sns/latest/api/API_GetSubscriptionAttributes.html) in the <i>Amazon Simple Notification Service API Reference</i>.",
+            "type": "boolean"
+        },
+        "Region": {
+            "description": "For cross-region subscriptions, the region in which the topic resides.\n\nIf no region is specified, CloudFormation uses the region of the caller as the default.\n\nIf you perform an update operation that only updates the Region property of a `AWS::SNS::Subscription` resource, that operation will fail unless you are either:\n\n - Updating the Region from NULL to the caller region.\n\n - Updating the Region from the caller region to NULL.",
+            "type": "string"
+        },
+        "SubscriptionRoleArn": {
+            "description": "The ARN of the IAM role that has the following:\n    * Permission to write to the Amazon Kinesis Data Firehose delivery stream\n    * Amazon SNS listed as a trusted entity.\nSpecifying a valid ARN for this attribute is required for Amazon Kinesis Data Firehose delivery stream subscriptions. For more information, see [Fanout to Amazon Kinesis Data Firehose delivery streams](https://alpha-docs-aws.amazon.com/sns/latest/dg/sns-kinesis-subscriber.html) in the _Amazon SNS Developer Guide_.",
+            "type": "string"
+        },
+        "TopicArn": {
+            "description": "The ARN of the topic to subscribe to.",
+            "type": "string"
+        },
+        "FilterPolicy": {
+            "description": "The filter policy JSON assigned to the subscription. Enables the subscriber to filter out unwanted messages. For more information, see [GetSubscriptionAttributes](https://docs.aws.amazon.com/sns/latest/api/API_GetSubscriptionAttributes.html) in the <i>Amazon Simple Notification Service API Reference</i> and [Message Filtering](https://docs.aws.amazon.com/sns/latest/dg/sns-message-filtering.html) in the <i>Amazon SNS Developer Guide</i>.",
+            "type": "object"
+        },
+        "RedrivePolicy": {
+            "description": "When specified, sends undeliverable messages to the specified Amazon SQS dead-letter queue. Messages that can't be delivered due to client errors (for example, when the subscribed endpoint is unreachable) or server errors (for example, when the service that powers the subscribed endpoint becomes unavailable) are held in the dead-letter queue for further analysis or reprocessing.",
+            "type": "object"
+        }
+    },
+    "tagging": {
+        "taggable": false,
+        "tagOnCreate": false,
+        "tagUpdatable": false,
+        "cloudFormationSystemTags": false
+    },
+    "additionalProperties": false,
+    "required": [
+        "Protocol",
+        "TopicArn"
+    ],
+    "createOnlyProperties": [
+        "/properties/Endpoint",
+        "/properties/Protocol",
+        "/properties/TopicArn"
+    ],
+    "primaryIdentifier": [
+        "/properties/SubscriptionArn"
+    ],
+    "readOnlyProperties": [
+        "/properties/SubscriptionArn"
+    ],
+    "handlers": {
+        "create": {
+            "permissions": [
+                "sns:Subscribe",
+                "sns:GetSubscriptionAttributes",
+                "sns:GetTopicAttributes",
+                "iam:GetRole",
+                "iam:PassRole",
+                "iam:PutRolePolicy"
+            ]
+        },
+        "read": {
+            "permissions": [
+                "sns:GetSubscriptionAttributes",
+                "sns:GetTopicAttributes"
+            ]
+        },
+        "update": {
+            "permissions": [
+                "sns:SetSubscriptionAttributes",
+                "sns:GetSubscriptionAttributes",
+                "sns:GetTopicAttributes",
+                "iam:GetRole",
+                "iam:PassRole",
+                "iam:PutRolePolicy",
+                "iam:UpdateRole"
+            ]
+        },
+        "delete": {
+            "permissions": [
+                "sns:GetSubscriptionAttributes",
+                "sns:GetTopicAttributes",
+                "sns:Unsubscribe",
+                "iam:DeleteRolePolicy",
+                "iam:DetachRolePolicy"
+            ]
+        },
+        "list": {
+            "permissions": [
+                "sns:GetTopicAttributes",
+                "sns:ListSubscriptionsByTopic"
+            ]
+        }
+    }
+}
