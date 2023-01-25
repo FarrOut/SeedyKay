@@ -33,7 +33,7 @@ class CustomResourceStack(Stack):
 
         custom_provider = cr.Provider(self, "MyProvider",
                                       on_event_handler=fn,
-                                      is_complete_handler=fn,  # optional async "waiter"
+                                      # is_complete_handler=fn,  # optional async "waiter"
                                       log_retention=logs.RetentionDays.ONE_DAY,
                                       # default is INFINITE
                                       )
