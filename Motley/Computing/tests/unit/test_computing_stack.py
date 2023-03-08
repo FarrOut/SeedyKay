@@ -1,10 +1,10 @@
 import aws_cdk as core
 import aws_cdk.assertions as assertions
 
-from computing.computing_stack import ComputingStack
+from computing.autoscaling_stack import ComputingStack
 
 # example tests. To run these tests, uncomment this file along with the example
-# resource in computing/computing_stack.py
+# resource in computing/autoscaling_stack.py
 def test_sqs_queue_created():
     app = core.App()
     stack = ComputingStack(app, "computing")
