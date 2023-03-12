@@ -1,7 +1,7 @@
 from aws_cdk import (
     # Duration,
     Stack,
-    aws_ec2 as ec2, CfnOutput,
+    aws_ec2 as ec2, CfnOutput, RemovalPolicy, Tags,
 )
 from constructs import Construct
 
@@ -11,7 +11,13 @@ class NetworkingStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        self.vpc = ec2.Vpc(self, 'MyVpc')
+        self.vpc = ec2.Vpc(self, 'MyVpc', )
+
+        # Only reject traffic and interval every minute.
+        self.vpc.add_flow_log("FlowLogCloudWatch",
+                              traffic_type=ec2.FlowLogTrafficType.REJECT,
+                              # max_aggregation_interval=FlowLogMaxAggregationInterval.ONE_MINUTE
+                              )
 
         CfnOutput(self, 'VpcId',
                   description='Identifier for this VPC.',
