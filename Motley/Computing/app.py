@@ -8,6 +8,7 @@ from aws_cdk import (
 )
 
 from computing.autoscaling_stack import AutoScalingStack
+from computing.instance_stack import InstanceStack
 from computing.networking_stack import NetworkingStack
 
 app = App()
@@ -17,6 +18,13 @@ net = NetworkingStack(app, "NetworkingStack",
                       env=Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'),
                                       region=os.getenv('CDK_DEFAULT_REGION')),
                       )
+
+InstanceStack(app, "InstanceStack",
+              vpc=net.vpc,
+              key_name=app.node.try_get_context("key_name"),
+              whitelisted_peer=ec2.Peer.prefix_list(peers),
+              env=Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+              )
 
 AutoScalingStack(app, "AutoScalingStack",
                  vpc=net.vpc,

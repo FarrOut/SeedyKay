@@ -17,6 +17,7 @@ class AutoScalingStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         asg_config_stack = AutoScalingConfigStack(self, "AutoScalingConfigStack",
+                                                  launch_config_name="Apollo12",
                                                   vpc=vpc,
                                                   key_name=key_name,
                                                   whitelisted_peer=whitelisted_peer,

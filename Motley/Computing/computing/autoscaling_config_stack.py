@@ -6,12 +6,14 @@ from aws_cdk import (
     aws_elasticloadbalancingv2_targets as elb_targets,
     aws_autoscaling as autoscaling, CfnOutput, NestedStack, RemovalPolicy, Fn, Tags,
 )
+from aws_cdk.aws_iam import Role, ServicePrincipal, ManagedPolicy, CfnInstanceProfile
 from constructs import Construct
 
 
 class AutoScalingConfigStack(NestedStack):
 
-    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, whitelisted_peer: ec2.Peer, key_name: str,
+    def __init__(self, scope: Construct, construct_id: str, launch_config_name: str, vpc: ec2.Vpc,
+                 whitelisted_peer: ec2.Peer, key_name: str,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -31,20 +33,44 @@ class AutoScalingConfigStack(NestedStack):
         userdata = ec2.UserData.for_linux()
 
         # The code that defines your stack goes here
-        userdata_file = open("./scripts/userdata.sh", "rb").read()
+        # userdata_file = open("./scripts/userdata.sh", "rb").read()
 
         # Adds one or more commands to the userdata object.
-        userdata.add_commands(str(userdata_file, 'utf-8'))
+        # userdata.add_commands(str(userdata_file, 'utf-8'))
+
+        userdata.add_commands('#!/bin/bash -xe')
+        userdata.add_commands('yum update -y')
+        userdata.add_commands('yum install -y aws-cfn-bootstrap')
+        userdata.add_commands('yum install -y java-1.8.0-openjdk')
+        userdata.add_commands('yum install -y unzip')
+        userdata.add_commands(
+            "/opt/aws/bin/cfn-init -v --stack " + self.stack_name + " --resource " + launch_config_name +
+            " --configsets install --region " + self.region)
 
         working_dir = '/home/ubuntu/cfn-init/'
 
+        role = Role(self, "MyInstanceRole",
+                    assumed_by=ServicePrincipal("ec2.amazonaws.com")
+                    )
+        # role.grant_pass_role(ServicePrincipal("ec2.amazonaws.com"))
+
+        # role.add_managed_policy(ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess"))
+        role.add_managed_policy(ManagedPolicy.from_aws_managed_policy_name("AWSCloudFormationFullAccess"))
+        role.apply_removal_policy(RemovalPolicy.DESTROY)
+
+        instance_profile = CfnInstanceProfile(self, "MyCfnInstanceProfile",
+                                              roles=[role.role_name],
+                                              path="/"
+                                              )
+
         self.launch_config = autoscaling.CfnLaunchConfiguration(self, "MyCfnLaunchConfiguration",
-                                                                launch_configuration_name="Apollo11",
+                                                                launch_configuration_name=launch_config_name,
 
                                                                 image_id=ami,
                                                                 ebs_optimized=True,
                                                                 key_name=key_name,
                                                                 instance_type=instance_type.to_string(),
+                                                                iam_instance_profile=instance_profile.ref,
                                                                 user_data=Fn.base64(userdata.render()),
                                                                 security_groups=[
                                                                     outer_perimeter_security_group.security_group_id],
