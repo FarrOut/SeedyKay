@@ -14,9 +14,7 @@ class AutoscalingStack(Stack):
 
         template = ec2.LaunchTemplate(self, "LaunchTemplate",
                                       machine_image=ec2.MachineImage.latest_amazon_linux(),
-                                      instance_type=ec2.InstanceType.of(
-                                          ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL
-                                      ),
+                                      instance_type=c,
                                       )
 
         asg = autoscaling.AutoScalingGroup(
