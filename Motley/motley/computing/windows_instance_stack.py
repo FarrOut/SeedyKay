@@ -6,7 +6,7 @@ from aws_cdk import (
 from constructs import Construct
 
 
-class InstanceStack(Stack):
+class WindowsInstanceStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, whitelisted_peer: ec2.Peer, key_name: str,
                  **kwargs) -> None:
@@ -33,17 +33,19 @@ class InstanceStack(Stack):
         instance = ec2.Instance(self, 'Instance',
                                 vpc=vpc,
                                 instance_type=ec2.InstanceType.of(
-                                    ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO),
+                                    ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.MEDIUM),
                                 key_name=key_name,
                                 machine_image=ec2.MachineImage.latest_windows(
-                                    ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_SQL_2019_STANDARD),
+                                    ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_BASE),
                                 security_group=outer_perimeter_security_group,
+                                ssm_session_permissions=True,
                                 user_data=user_data,
+                                vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
                                 )
 
-        user = 'windoze'
-        ssh_command = 'ssh' + ' -v' + ' -i ' + key_name + '.pem ' + user + '@' + instance.instance_public_dns_name
-        CfnOutput(self, 'InstanceSSHcommand',
-                  value=ssh_command,
-                  description='Command to SSH into instance.',
-                  )
+        # user = 'windoze'
+        # ssh_command = 'ssh' + ' -v' + ' -i ' + key_name + '.pem ' + user + '@' + instance.instance_public_dns_name
+        # CfnOutput(self, 'InstanceSSHcommand',
+        #           value=ssh_command,
+        #           description='Command to SSH into instance.',
+        #           )
