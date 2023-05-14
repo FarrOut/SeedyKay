@@ -1,17 +1,26 @@
+import logging
+
 from aws_cdk import (
     # Duration,
     Stack,
-    aws_ec2 as ec2, CfnOutput, RemovalPolicy, Tags,
-)
+    aws_ec2 as ec2, CfnOutput, )
 from constructs import Construct
 
 
 class NetworkingStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, existing_vpc_id: str = None, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        self.vpc = ec2.Vpc(self, 'MyVpc', )
+        log = logging.getLogger()
+        self.vpc = None
+
+        if existing_vpc_id and not existing_vpc_id.isspace():
+            log.info("Importing existing VPC ({})".format(existing_vpc_id))
+            self.vpc = ec2.Vpc.from_lookup(self, 'ExistingVpc', vpc_id=existing_vpc_id)
+        else:
+            log.info("Creating new VPC")
+            self.vpc = ec2.Vpc(self, 'MyVpc', )
 
         # Only reject traffic and interval every minute.
         self.vpc.add_flow_log("FlowLogCloudWatch",
