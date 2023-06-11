@@ -57,3 +57,12 @@ class NetworkingStack(Stack):
                   description='AZs for this VPC.',
                   value=str(self.vpc.availability_zones),
                   )
+
+        # port = 3100
+        # my_security_group = ec2.SecurityGroup(self, "SecurityGroup",
+        #                                       vpc=self.vpc,
+        #                                       description="Allow internet access to port {}".format(port),
+        #                                       allow_all_outbound=False
+        #                                       )
+        # my_security_group.add_ingress_rule(ec2.Peer.any_ipv4(), ec2.Port.tcp(port),
+        #                                    "allow access from the world to port {}".format(port))
