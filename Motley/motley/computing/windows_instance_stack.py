@@ -13,7 +13,6 @@ class WindowsInstanceStack(Stack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        vpc = ec2.Vpc(self, 'MyVpc', )
         toggle_param = CfnParameter(self, "ToggleParam", type="String",
                                     default="default",
                                     )
@@ -51,7 +50,7 @@ class WindowsInstanceStack(Stack):
         init_config_sets = ec2.CloudFormationInit.from_config_sets(
             config_sets={
                 # Applies the configs below in this order
-                "default": ['cfn-hup']
+                "default": ['cfn-hup', 'scoop', 'aws-sam-cli'],
             },
             configs={
                 'cfn-hup': ec2.InitConfig([
@@ -82,7 +81,20 @@ class WindowsInstanceStack(Stack):
                                            ensure_running=True,
                                            )
 
-                ])}
+                ]),
+                'scoop': ec2.InitConfig([
+                    # Create a group and user
+                    ec2.InitGroup.from_name("installers"),
+                    ec2.InitUser.from_name("scoop"),
+                    ec2.InitCommand.shell_command("Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"),
+
+
+
+
+
+
+                ])
+            }
         )
 
         self.instance = ec2.Instance(self, 'Instance',
