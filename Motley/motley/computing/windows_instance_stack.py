@@ -1,7 +1,7 @@
 from aws_cdk import (
     # Duration,
     Stack,
-    aws_ec2 as ec2,
+    aws_ec2 as ec2, aws_s3 as s3, aws_iam as iam,
     aws_sns as sns,
     CfnOutput, CfnParameter, )
 from constructs import Construct
@@ -10,6 +10,7 @@ from constructs import Construct
 class WindowsInstanceStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, whitelisted_peer: ec2.Peer, key_name: str,
+                 bucket: s3.Bucket,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -33,9 +34,11 @@ class WindowsInstanceStack(Stack):
                                                            )
 
         outer_perimeter_security_group.add_ingress_rule(whitelisted_peer, ec2.Port.tcp(22),
-                                                        "allow ssh access from the world")
+                                                        "allow ssh access from trusted whitelist")
         outer_perimeter_security_group.add_ingress_rule(whitelisted_peer, ec2.Port.udp_range(60000, 61000),
-                                                        "allow mosh access from the world")
+                                                        "allow mosh access from trusted whitelist")
+        outer_perimeter_security_group.add_ingress_rule(whitelisted_peer, ec2.Port.tcp(3389),
+                                                        "allow RDP access from trusted whitelist")
 
         CfnOutput(self, 'OuterPerimeterSecurityGroup',
                   description='SecurityGroup acting as first-line of defence from the outside world.',
@@ -50,7 +53,7 @@ class WindowsInstanceStack(Stack):
         init_config_sets = ec2.CloudFormationInit.from_config_sets(
             config_sets={
                 # Applies the configs below in this order
-                "default": ['cfn-hup', 'scoop', 'aws-sam-cli'],
+                "default": ['cfn-hup'],
             },
             configs={
                 'cfn-hup': ec2.InitConfig([
@@ -65,7 +68,7 @@ class WindowsInstanceStack(Stack):
                         "c:\\cfn\\hook.bat",
                         "echo hello > c:\cfn\hello.txt{}".format("\n") +
                         "cfn-init.exe -v -c default -s {} -r {} --region {} {}".format(self.stack_id, "XXXXXXXXXX",
-                                                                                      self.region, "\n")
+                                                                                       self.region, "\n")
                     ),
 
                     ec2.InitFile.from_string(
@@ -80,18 +83,6 @@ class WindowsInstanceStack(Stack):
                                            enabled=True,
                                            ensure_running=True,
                                            )
-
-                ]),
-                'scoop': ec2.InitConfig([
-                    # Create a group and user
-                    ec2.InitGroup.from_name("installers"),
-                    ec2.InitUser.from_name("scoop"),
-                    ec2.InitCommand.shell_command("Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"),
-
-
-
-
-
 
                 ])
             }
@@ -116,6 +107,10 @@ class WindowsInstanceStack(Stack):
                                      user_data_causes_replacement=True,
                                      vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
                                      )
+
+        role = self.instance.role
+        bucket.grant_read_write(role)
+        bucket.grant_read_write(iam.AccountPrincipal(self.account))
 
         # Bootstrapping.get_windows_init(instance=instance, instance_role=instance.role, os_type=instance.os_type,
         #                                user_data=instance.user_data),

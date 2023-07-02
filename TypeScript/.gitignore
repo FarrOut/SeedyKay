@@ -1,9 +1,16 @@
-*cdk.context.json
-*/node_modules/*
+*.swp
+package-lock.json
+__pycache__
+.pytest_cache
+.venv
+*.egg-info
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
 
 *.iml
 .idea/
-*/.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -134,3 +141,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/node_modules/

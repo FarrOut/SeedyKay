@@ -21,6 +21,19 @@ class RdsStack(Stack):
                                              }
                                              )
 
+        # option_group = rds.OptionGroup(self, "Options",
+        #                 engine=rds.DatabaseInstanceEngine.oracle_se2(
+        #                     version=rds.OracleEngineVersion.VER_19
+        #                 ),
+        #                 configurations=[rds.OptionConfiguration(
+        #                     name="OEM",
+        #                     port=5500,
+        #                     vpc=vpc,
+        #                     security_groups=[security_group]
+        #                 )
+        #                 ]
+        #                 )
+
         instance = rds.DatabaseInstance(self, "Instance",
                                         engine=rds.DatabaseInstanceEngine.postgres(
                                             version=rds.PostgresEngineVersion.VER_14_2),
