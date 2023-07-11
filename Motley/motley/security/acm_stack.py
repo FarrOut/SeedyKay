@@ -1,83 +1,78 @@
 from aws_cdk import (
     # Duration,
-    Stack,
-    aws_ec2 as ec2, aws_rds as rds,
-    aws_secretsmanager as secretsmanager, RemovalPolicy, )
-from aws_cdk.aws_rds import Credentials
+    Stack, RemovalPolicy, CfnOutput,
+)
+from aws_cdk.aws_acmpca import CfnCertificateAuthority, CfnCertificate
 from constructs import Construct
 
 
-class SecretStack(Stack):
+class AcmStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        secret = secretsmanager.Secret(
-            self,
-            "TopSecret",
-            generate_secret_string=secretsmanager.SecretStringGenerator(
-                secret_string_template="{\"username\": \"commander\"}",
-                generate_string_key="password",
-                password_length=10,
-                exclude_characters="':^,()@/",
-                exclude_punctuation=True,
-            ),
-            removal_policy=RemovalPolicy.DESTROY,
-        )
+        self.ca = CfnCertificateAuthority(self, "CA",
+                                          type="ROOT",
+                                          key_algorithm="RSA_2048",
+                                          signing_algorithm="SHA256WITHRSA",
+                                          subject=CfnCertificateAuthority.SubjectProperty(
+                                              country="US",
+                                              organization="Amazon Web Services",
+                                              organizational_unit="Premium Support",
+                                          )
+                                          )
+        self.ca.apply_removal_policy(RemovalPolicy.DESTROY)
 
-        ### How to resolve SecretValue ###
-        # secret_value = str(secret.secret_value_from_json("password").unsafe_unwrap())
-        #
-        # dummy = Topic(self, 'Dummy',
-        #               topic_name=secret_value
-        #               )
-        # CfnOutput(self, 'SecretValue',
-        #
-        #           description='Resolved secret value',
-        #           value=dummy.topic_name
-        #           )
+        CfnOutput(self, 'CaArn',
+                  description='The Amazon Resource Name (ARN) for the private CA that issued the certificate.',
+                  value=self.ca.attr_arn,
+                  )
+        CfnOutput(self, 'CertificateSigningRequest',
+                  description='The Base64 PEM-encoded certificate signing request (CSR) for your certificate '
+                              'authority certificate.',
+                  value=self.ca.attr_certificate_signing_request,
+                  )
+        CfnOutput(self, 'CaKeyAlgorithm',
+                  description='Type of the public key algorithm and size, in bits, of the key pair that your CA '
+                              'creates when it issues a certificate.',
+                  value=self.ca.key_algorithm,
+                  )
+        CfnOutput(self, 'CaStorageSecurityStandard',
+                  description='Specifies a cryptographic key management compliance standard used for handling CA keys.',
+                  value=str(self.ca.key_storage_security_standard),
+                  )
+        CfnOutput(self, 'CaSigningAlgorithm',
+                  description='Name of the algorithm your private CA uses to sign certificate requests.',
+                  value=self.ca.signing_algorithm,
+                  )
+        CfnOutput(self, 'CaSubjectOrganization',
+                  description='Structure that contains X.500 distinguished name information for your private CA.',
+                  value=str(self.ca.subject.organization),
+                  )
+        CfnOutput(self, 'CaType',
+                  description='Type of your private CA.',
+                  value=self.ca.type,
+                  )
 
-        ### Secret Attachment ###
-        # Attachable target
-        cluster = rds.DatabaseCluster(self, "Database",
-                                      engine=rds.DatabaseClusterEngine.aurora_postgres(
-                                          version=rds.AuroraPostgresEngineVersion.VER_13_7),
-                                      credentials=Credentials.from_secret(secret),
-                                      instances=1,
-                                      removal_policy=RemovalPolicy.DESTROY,
-                                      # Optional - will default to 'admin' username and generated password
-                                      instance_props=rds.InstanceProps(
-                                          # optional , defaults to t3.medium
-                                          instance_type=ec2.InstanceType.of(ec2.InstanceClass.R5,
-                                                                            ec2.InstanceSize.LARGE),
-                                          vpc_subnets=ec2.SubnetSelection(
-                                              subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
-                                          ),
-                                          vpc=vpc
-                                      )
-                                      )
+        self.cert = CfnCertificate(self, "MyCfnCertificate",
+                                   certificate_authority_arn=self.ca.attr_arn,
+                                   certificate_signing_request=self.ca.attr_certificate_signing_request,
+                                   signing_algorithm=self.ca.signing_algorithm,
+                                   validity=CfnCertificate.ValidityProperty(
+                                       type="MONTHS",
+                                       value=3
+                                   )
+                                   )
 
-        new_secret = secretsmanager.Secret(
-            self,
-            "NewSecret",
-            generate_secret_string=secretsmanager.SecretStringGenerator(
-                secret_string_template="{\"username\": \"commander\"}",
-                generate_string_key="password",
-                password_length=10,
-                exclude_characters="':^,()@/",
-                exclude_punctuation=True,
-            ),
-            removal_policy=RemovalPolicy.DESTROY,
-        )
+        self.cert.apply_removal_policy(RemovalPolicy.DESTROY)
 
-        proxy = rds.DatabaseProxy(self, "Proxy",
-                                  proxy_target=rds.ProxyTarget.from_cluster(cluster),
-                                  secrets=[new_secret],
-                                  vpc=vpc
-                                  )
+        CfnOutput(self, 'CertificateArn',
+                  description='The Amazon Resource Name (ARN) for the certificate.',
+                  value=self.cert.attr_arn,
+                  )
 
-        #
-        # CfnOutput(self, 'SecretTargetAttachment',
-        #           description='Same as secretArn.',
-        #           value=secret_attachment.secret_arn
-        #           )
+        CfnOutput(self, 'CertificateAuthorityArn',
+                  description='The Amazon Resource Name (ARN) for the certificate authority that issued the '
+                              'certificate.',
+                  value=self.cert.attr_certificate_authority_arn,
+                  )
