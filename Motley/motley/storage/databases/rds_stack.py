@@ -1,8 +1,7 @@
 from aws_cdk import (
     # Duration,
-    Stack, aws_ec2 as ec2,
-aws_codebuild as cb,
-    aws_rds as rds, RemovalPolicy, CfnOutput, )
+    Stack, aws_ec2 as ec2, aws_rds as rds, RemovalPolicy, CfnOutput, )
+from aws_cdk.aws_rds import CfnDBInstance
 from constructs import Construct
 
 
@@ -13,7 +12,7 @@ class RdsStack(Stack):
 
         parameter_group = rds.ParameterGroup(self, "ParameterGroup",
                                              engine=rds.DatabaseInstanceEngine.postgres(
-                                                 version=rds.PostgresEngineVersion.VER_14_2),
+                                                 version=rds.PostgresEngineVersion.VER_15_3),
                                              description='Testing drift',
                                              parameters={
                                                  "shared_preload_libraries": "pg_stat_statements",
@@ -36,7 +35,7 @@ class RdsStack(Stack):
 
         instance = rds.DatabaseInstance(self, "Instance",
                                         engine=rds.DatabaseInstanceEngine.postgres(
-                                            version=rds.PostgresEngineVersion.VER_14_2),
+                                            version=rds.PostgresEngineVersion.VER_15_3),
                                         # optional, defaults to m5.large
                                         instance_type=ec2.InstanceType.of(ec2.InstanceClass.R5,
                                                                           ec2.InstanceSize.LARGE),
@@ -66,4 +65,19 @@ class RdsStack(Stack):
         CfnOutput(self, 'DbInstanceEndpointPort',
                   value=instance.db_instance_endpoint_port,
                   description='The instance endpoint port.'
-                  )        
+                  )
+
+        cfn_dBInstance = CfnDBInstance(self, "MyCfnDBInstance",
+                                       engine="postgres",
+                                       engine_version="15.3",
+
+                                       db_instance_class="db.r5.large",
+                                       allocated_storage="20",
+                                       storage_type="gp2",
+
+                                       master_username="syscdk",
+                                       master_user_password="Wagw00rd",
+
+                                       # ca_certificate_identifier="rds-ca-rsa2048-g1",
+                                       # certificate_rotation_restart=False,
+                                       )
