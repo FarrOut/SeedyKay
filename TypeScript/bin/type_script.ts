@@ -1,18 +1,24 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import {NetworkingStack} from '../lib/networking/networking-stack';
-import {EksStack} from "../lib/orchestration/eks-stack";
-import {SecretStack} from "../lib/security/secret-stack";
-import {RedshiftStack} from "../lib/storage/redshift-stack";
-import {LambdaStack} from "../lib/compute/lambda-stack";
-import {ApiGatewayV2Stack} from "../lib/networking/api-gateway-v2-stack";
+import { NetworkingStack } from '../lib/networking/networking-stack';
+import { EksStack } from "../lib/orchestration/eks-stack";
+import { SecretStack } from "../lib/security/secret-stack";
+import { RedshiftStack } from "../lib/storage/redshift-stack";
+import { LambdaStack } from "../lib/compute/lambda-stack";
+import { ApiGatewayV2Stack } from "../lib/networking/api-gateway-v2-stack";
+import { EventsStack } from "../lib/events/events-stack";
+import { IamStack } from '../lib/security/iam-stack';
 
 const app = new cdk.App();
 
-const default_env = {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION}
+const default_env = { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION }
 
 const net = new NetworkingStack(app, 'NetworkingStack', {
+    env: default_env,
+});
+
+const iam = new IamStack(app, 'IamStack', {
     env: default_env,
 });
 
@@ -23,6 +29,11 @@ new ApiGatewayV2Stack(app, 'ApiGatewayV2Stack', {
 new EksStack(app, 'EksStack', {
     vpc: net.vpc,
     env: default_env,
+});
+
+new EventsStack(app, 'EventsStack', {
+    env: default_env,
+    eventBridgeGuardDutyName: "sentry"
 });
 
 new SecretStack(app, 'SecretStack', {
