@@ -170,14 +170,6 @@ ecr = EcrStack(
     ),
 )
 
-waf = WafStack(
-    app,
-    "WafStack",
-    env=Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-    ),
-)
-
 scheduler = SchedulerStack(
     app,
     "SchedulerStack",
@@ -199,6 +191,14 @@ r53 = Route53Stack(
 logs = LogGroupStack(
     app,
     "LogGroupStack",
+    env=Environment(
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+    ),
+)
+
+waf = WafStack(
+    app,
+    "WafStack",
     env=Environment(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
