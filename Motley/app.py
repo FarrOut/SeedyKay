@@ -25,6 +25,7 @@ from motley.security.ssm_stack import SsmStack
 from motley.security.waf_stack import WafStack
 from motley.storage.backup.backup_stack import BackupStack
 from motley.storage.block.s3_stack import S3Stack
+from motley.storage.databases.dynamodb_stack import DynamoDBStack
 from motley.storage.databases.elasticache_stack import ElastiCacheStack
 from motley.storage.databases.rds_serverless_stack import RdsServerlessStack
 from motley.storage.databases.rds_stack import RdsStack
@@ -173,6 +174,14 @@ ecr = EcrStack(
 scheduler = SchedulerStack(
     app,
     "SchedulerStack",
+    env=Environment(
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+    ),
+)
+
+dynamodb = DynamoDBStack(
+    app,
+    "DynamoDbStack",
     env=Environment(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
