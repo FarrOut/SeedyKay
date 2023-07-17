@@ -8,6 +8,7 @@ from motley.CICD.cross_account.cross_account_codepipeline_stack import (
     CrossAccountCodePipelineStack,
 )
 from motley.analytics.kinesis_stack import KinesisStack
+from motley.analytics.opensearch_stack import OpenSearchStack
 from motley.computing.windows_instance_stack import WindowsInstanceStack
 from motley.containerization.ecr_stack import EcrStack
 from motley.containerization.ecs_stack import EcsStack
@@ -18,6 +19,14 @@ from motley.networking.route53_stack import Route53Stack
 from motley.orchestration.eks_stack import EksStack
 from motley.orchestration.imported_eks_stack import ImportedEksStack
 from motley.security.acm_stack import AcmStack
+from aws_cdk.aws_opensearchservice import (
+    EngineVersion,
+    CapacityConfig,
+    EbsOptions,
+    ZoneAwarenessConfig,
+    LoggingOptions,
+    EncryptionAtRestOptions,
+)
 from motley.security.kms_stack import KmsStack
 from motley.security.secret_stack import SecretStack
 from motley.security.security_groups_stack import SecurityGroupsStack
@@ -166,6 +175,16 @@ kinesis = KinesisStack(
 ecr = EcrStack(
     app,
     "EcrStack",
+    env=Environment(
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+    ),
+)
+
+opensearch = OpenSearchStack(
+    app,
+    "OpenSearchStack",
+    version=EngineVersion.OPENSEARCH_1_3,
+    vpc=net.vpc,
     env=Environment(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
