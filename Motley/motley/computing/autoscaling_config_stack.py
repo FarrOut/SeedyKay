@@ -26,7 +26,7 @@ class AutoScalingConfigStack(NestedStack):
         outer_perimeter_security_group.add_ingress_rule(whitelisted_peer, ec2.Port.tcp(22),
                                                         "allow ssh access from the world")
 
-        ami = ec2.MachineImage.latest_amazon_linux().get_image(self).image_id
+        ami = ec2.MachineImage.latest_amazon_linux2().get_image(self).image_id
         instance_type = ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL, )
 
         # Creates a userdata object for Linux hosts

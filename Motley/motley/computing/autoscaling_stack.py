@@ -1,5 +1,6 @@
 from aws_cdk import (
     # Duration,
+    NestedStack,
     Stack,
     aws_ec2 as ec2,
     aws_elasticloadbalancingv2 as elbv2,
@@ -7,12 +8,13 @@ from aws_cdk import (
     aws_autoscaling as autoscaling, CfnOutput, RemovalPolicy, Fn, Tags, )
 from constructs import Construct
 
-from computing.autoscaling_config_stack import AutoScalingConfigStack
+from motley.computing.autoscaling_config_stack import AutoScalingConfigStack
 
 
-class AutoScalingStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, whitelisted_peer: ec2.Peer, key_name: str,
+class AutoScalingStack(NestedStack):
+
+    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, whitelisted_peer: ec2.Peer, key_name: str, removal_policy: RemovalPolicy,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -23,7 +25,7 @@ class AutoScalingStack(Stack):
                                                   whitelisted_peer=whitelisted_peer,
                                                   )
 
-        cfn_asg = autoscaling.CfnAutoScalingGroup(self, "CfnAutoScalingGroup",
+        self.asg = autoscaling.CfnAutoScalingGroup(self, "CfnAutoScalingGroup",
                                                   min_size="0",
                                                   max_size="6",
                                                   desired_capacity="1",
@@ -35,12 +37,12 @@ class AutoScalingStack(Stack):
                                                   vpc_zone_identifier=[str(vpc.public_subnets[0].subnet_id),
                                                                        str(vpc.public_subnets[1].subnet_id)],
                                                   )
-
+        self.asg.apply_removal_policy(removal_policy)
         # cfn_asg.add_dependency(config_stack)
 
         CfnOutput(self, 'AsgName',
                   description='The name of the Auto Scaling group. This name must be unique per Region per account.',
-                  value=str(cfn_asg.auto_scaling_group_name),
+                  value=str(self.asg.auto_scaling_group_name),
                   )
 
         # listener = elbv2.CfnListener(self, "MyCfnListener",
