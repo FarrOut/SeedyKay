@@ -12,51 +12,39 @@ namespace Demo
     {
         internal DemoStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
         {
-            // The code that defines your stack goes here
+            // Users //
 
-            var user = new User(this, "User");
-            user.ApplyRemovalPolicy(RemovalPolicy.DESTROY);
-            var accessKey = new AccessKey(this, "AccessKey", new AccessKeyProps { User = user });
-            accessKey.ApplyRemovalPolicy(RemovalPolicy.DESTROY);
-
-            var secret = new Secret(this, "Secret", new SecretProps
+            var AdminUserStack = new UserStack(this, "AdminUserStack", new UserStackProps
             {
-                SecretObjectValue = new Dictionary<string, SecretValue> {
-                { "username", SecretValue.UnsafePlainText(user.UserName) },
-                { "database", SecretValue.UnsafePlainText("foo") },
-                { "password", accessKey.SecretAccessKey }
-            }
+                UserName = "Admin",
+                RemovalPolicy = RemovalPolicy.DESTROY
             });
-            secret.ApplyRemovalPolicy(RemovalPolicy.DESTROY);
 
-            _ = new CfnOutput(this, "SecretArn", new CfnOutputProps { Value = secret.SecretArn, Description = "The ARN of the secret in AWS Secrets Manager." });
-
-            _ = new CfnOutput(this, "SecretFullArn", new CfnOutputProps { Value = secret.SecretFullArn, Description = "The full ARN of the secret in AWS Secrets Manager, which is the ARN including the Secrets Manager-supplied 6-character suffix." });
-
-            _ = new CfnOutput(this, "SecretName", new CfnOutputProps { Value = secret.SecretName, Description = "The name of the secret." });
-
-
-            var function = new Function(this, "Singleton", new FunctionProps
+            var BobUserStack = new UserStack(this, "BobUserStack", new UserStackProps
             {
-                Runtime = Runtime.PYTHON_3_10,
-                Code = Code.FromInline("def main(event, context):\n" + "    print(\"I'm running!\")\n"),
-                Handler = "index.main",
-                Timeout = Duration.Seconds(10),
+                UserName = "Bob",
+                RemovalPolicy = RemovalPolicy.DESTROY
             });
-            function.ApplyRemovalPolicy(RemovalPolicy.DESTROY);
 
-            var rotation = new RotationSchedule(this, "MyRotationSchedule", new RotationScheduleProps
+            var CharlieUserStack = new UserStack(this, "CharlieUserStack", new UserStackProps
             {
-                Secret = secret,
-
-                // the properties below are optional
-                AutomaticallyAfter = Duration.Days(1),
-                RotateImmediatelyOnUpdate = true,
-                RotationLambda = function
+                UserName = "Charlie",
+                RemovalPolicy = RemovalPolicy.DESTROY
             });
-            rotation.ApplyRemovalPolicy(RemovalPolicy.DESTROY);
+
+            // --------------------- //
+
+            var SecretRotationStack = new SecretRotationStack(this, "SecretRotationStack", new SecretRotationStackProps
+            {
+                MasterSecret = AdminUserStack.Secret,
+                RemovalPolicy = RemovalPolicy.DESTROY
+            });
+
+
 
 
         }
+
+
     }
 }

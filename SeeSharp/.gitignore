@@ -16,6 +16,10 @@ cdk.out
 *.userosscache
 *.sln.docstates
 
+.vscode
+.vscode/*
+
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
