@@ -1,7 +1,7 @@
 from aws_cdk import (
     # Duration,
     Stack, aws_ec2 as ec2,
-    CfnOutput,
+    CfnOutput, Tags,
 )
 from aws_cdk.aws_autoscaling import TerminationPolicy, UpdatePolicy
 from aws_cdk.aws_eks import MachineImageType
@@ -39,7 +39,7 @@ class EksStack(Stack):
                 min_instances_in_service=1,
             ),
             termination_policies=[TerminationPolicy.ALLOCATION_STRATEGY, TerminationPolicy.OLDEST_INSTANCE,
-                                  TerminationPolicy.DEFAULT]
+                                  TerminationPolicy.DEFAULT],
         )
         CfnOutput(self, 'ClusterAsgName',
                   value=self.asg.auto_scaling_group_name,
@@ -47,3 +47,5 @@ class EksStack(Stack):
                   )
         CfnOutput(self, 'ClusterAsgArn', value=self.asg.auto_scaling_group_arn,
                   description='The Arn  of the created EKS Cluster ASG.')
+
+        Tags.of(self.asg).add("Label", "Added by cluster")
