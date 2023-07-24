@@ -2,47 +2,11 @@
 import os
 
 import boto3
-from aws_cdk import RemovalPolicy, aws_ec2 as ec2, App, Environment
-from motley.CICD.canary_deployment_stack import CanaryDeploymentStack
-from motley.CICD.codedeploy_stack import CodeDeployStack
+from aws_cdk import RemovalPolicy, App, Environment
 
-from motley.CICD.cross_account.cross_account_codepipeline_stack import (
-    CrossAccountCodePipelineStack,
-)
-from motley.analytics.kinesis_stack import KinesisStack
-from motley.analytics.opensearch_stack import OpenSearchStack
-from motley.computing.autoscaling_stack import AutoScalingStack
-from motley.computing.windows_instance_stack import WindowsInstanceStack
-from motley.containerization.ecr_stack import EcrStack
-from motley.containerization.ecs_stack import EcsStack
-from motley.events.scheduler_group_stack import SchedulerStack
-from motley.logging.log_group_stack import LogGroupStack
+from motley.CICD.canary_deployment_stack import CanaryDeploymentStack
 from motley.networking.networking_stack import NetworkingStack
-from motley.networking.route53_stack import Route53Stack
-from motley.orchestration.eks_stack import EksStack
-from motley.orchestration.imported_eks_stack import ImportedEksStack
-from motley.security.acm_stack import AcmStack
-from aws_cdk.aws_opensearchservice import (
-    EngineVersion,
-    CapacityConfig,
-    EbsOptions,
-    ZoneAwarenessConfig,
-    LoggingOptions,
-    EncryptionAtRestOptions,
-)
-from motley.security.kms_stack import KmsStack
-from motley.security.secret_stack import SecretStack
-from motley.security.security_groups_stack import SecurityGroupsStack
-from motley.security.ssm_stack import SsmStack
-from motley.security.waf_stack import WafStack
-from motley.storage.backup.backup_stack import BackupStack
-from motley.storage.block.s3_stack import S3Stack
-from motley.storage.databases.dynamodb_stack import DynamoDBStack
-from motley.storage.databases.elasticache_stack import ElastiCacheStack
-from motley.storage.databases.rds_serverless_stack import RdsServerlessStack
-from motley.storage.databases.rds_stack import RdsStack
-from motley.storage.filesystems.directory_stack import DirectoryStack
-from motley.storage.filesystems.fsx_stack import FSxStack
+from motley.solutions.eks_stack import EksStack
 
 secretsmanager_ = boto3.client("secretsmanager")
 
@@ -88,14 +52,14 @@ net = NetworkingStack(
 #     ),
 # )
 
-# eks = EksStack(
-#     app,
-#     "EksStack",
-#     vpc=net.vpc,
-#     env=Environment(
-#         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-#     ),
-# )
+eks = EksStack(
+    app,
+    "Eks",
+    vpc=net.vpc,
+    env=Environment(
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+    ),
+)
 
 # imported_eks = ImportedEksStack(
 #     app,
@@ -310,6 +274,5 @@ canary_deployment = CanaryDeploymentStack(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
 )
-
 
 app.synth()

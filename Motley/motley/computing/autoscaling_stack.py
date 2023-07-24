@@ -18,6 +18,8 @@ class AutoScalingStack(NestedStack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        # TODO Create LaunchTemplate
+
         asg_config_stack = AutoScalingConfigStack(self, "AutoScalingConfigStack",
                                                   launch_config_name="Apollo12",
                                                   vpc=vpc,
@@ -25,45 +27,17 @@ class AutoScalingStack(NestedStack):
                                                   whitelisted_peer=whitelisted_peer,
                                                   )
 
-        self.asg = autoscaling.CfnAutoScalingGroup(self, "CfnAutoScalingGroup",
-                                                  min_size="0",
-                                                  max_size="6",
-                                                  desired_capacity="1",
+        self.asg = autoscaling.AutoScalingGroup(self, "ASG",
+            vpc=vpc,
+            instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO),
 
-                                                  launch_configuration_name=asg_config_stack.launch_config.ref,
-                                                  target_group_arns=[
-                                                      asg_config_stack.target_group.ref],
-                                                  # availability_zones=vpc.availability_zones,
-                                                  vpc_zone_identifier=[str(vpc.public_subnets[0].subnet_id),
-                                                                       str(vpc.public_subnets[1].subnet_id)],
-                                                  )
+            # The latest Amazon Linux image of a particular generation
+            machine_image=ec2.MachineImage.latest_amazon_linux2(),
+        )
         self.asg.apply_removal_policy(removal_policy)
-        # cfn_asg.add_dependency(config_stack)
 
         CfnOutput(self, 'AsgName',
                   description='The name of the Auto Scaling group. This name must be unique per Region per account.',
                   value=str(self.asg.auto_scaling_group_name),
                   )
 
-        # listener = elbv2.CfnListener(self, "MyCfnListener",
-        #
-        #                              )
-        #
-        # listener_rule = elbv2.CfnListenerRule(self, "MyCfnListenerRule",
-        #                                       actions=[
-        #                                           elbv2.CfnListenerRule.ActionProperty(
-        #                                               type='forward',
-        #                                               target_group_arn=target_group.ref
-        #                                           )
-        #                                       ],
-        #                                       conditions=[
-        #                                           elbv2.CfnListenerRule.RuleConditionProperty(
-        #                                               field='path-pattern',
-        #                                               path_pattern_config=elbv2.CfnListenerRule.PathPatternConfigProperty(
-        #                                                   values=["/nexus*"]
-        #                                               )
-        #                                           )
-        #                                       ],
-        #                                       priority='91',
-        #                                       listener_arn=listener.ref
-        #                                       )

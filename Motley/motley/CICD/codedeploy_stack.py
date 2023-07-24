@@ -2,7 +2,7 @@ from aws_cdk import (
     # Duration,
     NestedStack, Stack,CfnOutput,
     aws_codepipeline as codepipeline,aws_cloudwatch as cloudwatch,
-    aws_s3 as s3,aws_codedeploy as codedeploy,
+    aws_s3 as s3,aws_codedeploy as codedeploy,aws_elasticloadbalancingv2 as elbv2,
     aws_s3_deployment as s3deploy, RemovalPolicy,aws_autoscaling as autoscaling,aws_iam as iam,aws_codecommit as codecommit,
 )
 from aws_cdk.aws_codepipeline import StageProps
@@ -15,9 +15,10 @@ from constructs import Construct
 
 class CodeDeployStack(NestedStack):
 
-    def __init__(self, scope: Construct, construct_id: str, asg: autoscaling.AutoScalingGroup, removal_policy: RemovalPolicy, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, asg: autoscaling.AutoScalingGroup, load_balancer: codedeploy.LoadBalancer,  removal_policy: RemovalPolicy, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        # TODO
         # application = codedeploy.ServerApplication(self, "CodeDeployApplication",
         #     application_name="MyApplication"
         # )
@@ -26,6 +27,7 @@ class CodeDeployStack(NestedStack):
         # CfnOutput(self, "ApplicationName", value=application.application_name, description="The name of the application.")        
         # CfnOutput(self, "ApplicationArn", value=application.application_arn, description="The ARN of the application.")        
 
+        # TODO
         # alarm = cloudwatch.Alarm(self, "Alarm",
         #     metric=application.metric_healthy_hosts(),
         #     comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,            
@@ -41,6 +43,8 @@ class CodeDeployStack(NestedStack):
             # application=application,
             # deployment_group_name="MyDeploymentGroup",
             # auto_scaling_groups=[asg],
+            load_balancer=load_balancer,
+
             # adds User Data that installs the CodeDeploy agent on your auto-scaling groups hosts
             # default: true
             install_agent=True,

@@ -28,7 +28,7 @@ class CanaryDeploymentStack(Stack):
             removal_policy=removal_policy,            
             vpc=vpc,
         )
-        CfnOutput(self, "LoadBalancerDnsName", value=lb.lb.load_balancer_dns_name, description='The DNS name of this load balancer.')        
+        CfnOutput(self, "LoadBalancerDnsName", value=lb.alb.load_balancer_dns_name, description='The DNS name of this load balancer.')        
 
         asg = AutoScalingStack(
             self,
@@ -44,6 +44,7 @@ class CanaryDeploymentStack(Stack):
             "CodeDeployStack",
             removal_policy=removal_policy,
             asg=asg.asg,
+            load_balancer=lb.lb,
         )
         CfnOutput(self, "DeploymentGroupName", value=codedeploy.deployment_group.deployment_group_name, description="The name of the Deployment Group.")
         CfnOutput(self, "DeploymentGroupArn", value=codedeploy.deployment_group.deployment_group_arn, description="The ARN of the Deployment Group.")        
