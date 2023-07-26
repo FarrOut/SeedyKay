@@ -55,7 +55,9 @@ net = NetworkingStack(
 eks = EksStack(
     app,
     "Eks",
+    eks_version='1.23',
     vpc=net.vpc,
+    removal_policy=RemovalPolicy.DESTROY,
     env=Environment(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
