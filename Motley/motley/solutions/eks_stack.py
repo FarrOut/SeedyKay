@@ -3,8 +3,8 @@ from aws_cdk import (
     Stack, aws_ec2 as ec2,
     CfnOutput, RemovalPolicy,
 )
-from aws_cdk.aws_eks import KubernetesVersion
-from aws_cdk.aws_iam import Role, ServicePrincipal, ManagedPolicy
+from aws_cdk.aws_eks import EndpointAccess
+from aws_cdk.aws_iam import Role, ManagedPolicy, ServicePrincipal
 from constructs import Construct
 
 from motley.components.orchestration.eks import Eks
@@ -21,13 +21,25 @@ class EksStack(Stack):
         control_plane_role = Role(self, "ControlPlaneRole",
                                   assumed_by=ServicePrincipal("eks.amazonaws.com")
                                   )
-        control_plane_role.add_managed_policy(ManagedPolicy.from_aws_managed_policy_name("AmazonEKSClusterPolicy"))
+        control_plane_role.add_managed_policy(
+            ManagedPolicy.from_aws_managed_policy_name("AmazonEKSClusterPolicy"))
         control_plane_role.apply_removal_policy(removal_policy)
+
+        control_plane_sg = ec2.SecurityGroup(
+            self, 'ControlPlaneSecurityGroup',
+            vpc=vpc,
+            allow_all_outbound=False,
+            description='Security group for EKS Control Plane',
+        )
+        # control_plane_sg.connections.allow_from()
 
         self.cluster_stack = Eks(self, 'EksClusterStack',
                                  vpc=vpc,
+                                 masters_role=None,
                                  control_plane_role=control_plane_role,
-                                 version=KubernetesVersion.of(eks_version),
+                                 control_plane_security_group=control_plane_sg,
+                                 endpoint_access=EndpointAccess.PRIVATE,
+                                 eks_version='1.23',
                                  )
 
         CfnOutput(self, 'ClusterArn',
@@ -60,33 +72,3 @@ class EksStack(Stack):
         #           description='The Arn  of the created EKS Cluster ASG.')
         #
         # Tags.of(self.asg).add("Label", "Added at cluster-level")
-
-        eks_optimized_image = ec2.LookupMachineImage(
-            name=f"amazon-eks-node-{eks_version}-*",
-            owners=["amazon"],
-            filters={'architecture': ['x86_64'], 'state': ['available']},
-            # user_data=ubuntu_bootstrapping,
-        )
-        lt = ec2.LaunchTemplate(self, "LaunchTemplate",
-                                machine_image=eks_optimized_image,
-                                )
-
-        node_group = self.cluster_stack.cluster.add_nodegroup_capacity(
-            'EksClusterNodeGroup',
-            min_size=1,  # Default: 1
-            desired_size=2,  # Default: 2
-            # launch_template_spec=LaunchTemplateSpec(
-            #     id=lt.launch_template_id,
-            #     version=lt.latest_version_number
-            # ),
-            node_role=self.cluster_stack.node_group_role,
-            tags={
-                'Name': 'EKS Cluster Node Group',
-                'Label': 'Added at cluster-level'
-            },
-        )
-
-        CfnOutput(self, 'NodeGroupInstanceProfileRole',
-                  value=node_group.role.role_arn,
-                  description='IAM role of the instance profile for the nodegroup.'
-                  )
