@@ -1,6 +1,6 @@
-import * as cdk from '@aws-cdk/core';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import { VpcNestedStack } from '../components/networking/vpc-nestedstack';
+import {VpcNestedStack} from '../components/networking/vpc-nestedstack';
+import * as cdk from 'aws-cdk-lib';
+import {Construct} from 'constructs';
 
 /* ===============================================================================
 // === References ===
@@ -11,13 +11,16 @@ import { VpcNestedStack } from '../components/networking/vpc-nestedstack';
 ===============================================================================*/
 
 export class NetworkStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
 
-    let Vpc = new VpcNestedStack(this, 'VpcNestedStack',)
+    public readonly VpcId: string;
 
-    
+    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+        super(scope, id, props);
+
+        let Vpc = new VpcNestedStack(this, 'VpcNestedStack',)
+
+        this.VpcId = Vpc.vpc.vpcId
 
 
-  }
+    }
 }
