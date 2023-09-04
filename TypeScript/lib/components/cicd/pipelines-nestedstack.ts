@@ -25,7 +25,7 @@ export class PipelinesNestedStack extends cdk.NestedStack {
 
             synth: new ShellStep('Synth', {
                 input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
-                commands: [`cd ${SubDir}`, `pwd`, `ls -la`, 'npm ci', 'npm run build', 'npx cdk synth'],
+                commands: [`cd ${SubDir}`, `pwd`, `ls -la`, 'npm ci', `npx cdk --version`, 'npm run build', 'npx cdk synth'],
                 primaryOutputDirectory: `${SubDir}/cdk.out`,
             }),
         });
