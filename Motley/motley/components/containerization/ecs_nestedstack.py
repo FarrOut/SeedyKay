@@ -1,19 +1,22 @@
 from aws_cdk import (
     # Duration,
-    Stack,
+    NestedStack,
     aws_ec2 as ec2,
     aws_efs as efs,
     aws_ecs as ecs,
     CfnOutput,
     RemovalPolicy,
 )
+from aws_cdk.aws_ecs import ContainerImage
 from aws_cdk.aws_logs import LogGroup, RetentionDays
 from constructs import Construct
 
 
-class EcsStack(Stack):
+class EcsNestedStack(NestedStack):
     def __init__(
-        self, scope: Construct, construct_id: str, vpc: ec2.Vpc, **kwargs
+            self, scope: Construct, construct_id: str, vpc: ec2.Vpc, container_image: ContainerImage,
+            removal_policy: RemovalPolicy = RemovalPolicy.RETAIN,
+            **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -27,7 +30,7 @@ class EcsStack(Stack):
             # files are not transitioned to infrequent access (IA) storage by default
             performance_mode=efs.PerformanceMode.GENERAL_PURPOSE,  # default
             out_of_infrequent_access_policy=efs.OutOfInfrequentAccessPolicy.AFTER_1_ACCESS,
-            removal_policy=RemovalPolicy.DESTROY,
+            removal_policy=removal_policy,
         )
         volume_one = ecs.Volume(
             name="SeaDrive",
@@ -43,7 +46,7 @@ class EcsStack(Stack):
             cpu=256,
             runtime_platform=ecs.RuntimePlatform(
                 operating_system_family=ecs.OperatingSystemFamily.LINUX,
-                cpu_architecture=ecs.CpuArchitecture.ARM64,
+                cpu_architecture=ecs.CpuArchitecture.X86_64,
             ),
             volumes=[volume_one],
         )
@@ -52,14 +55,14 @@ class EcsStack(Stack):
             self,
             "LogGroup",
             retention=RetentionDays.ONE_WEEK,
-            removal_policy=RemovalPolicy.DESTROY,
+            removal_policy=removal_policy,
         )
 
         container_def = ecs.ContainerDefinition(
             self,
             "ContainerDef",
             task_definition=task_def,
-            image=ecs.ContainerImage.from_registry("tomcat"),
+            image=container_image,
             port_mappings=[
                 ecs.PortMapping(container_port=7600, protocol=ecs.Protocol.TCP)
             ],

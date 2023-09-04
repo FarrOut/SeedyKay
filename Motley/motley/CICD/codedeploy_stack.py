@@ -1,15 +1,7 @@
 from aws_cdk import (
     # Duration,
-    NestedStack, Stack,CfnOutput,
-    aws_codepipeline as codepipeline,aws_cloudwatch as cloudwatch,
-    aws_s3 as s3,aws_codedeploy as codedeploy,aws_elasticloadbalancingv2 as elbv2,
-    aws_s3_deployment as s3deploy, RemovalPolicy,aws_autoscaling as autoscaling,aws_iam as iam,aws_codecommit as codecommit,
-)
-from aws_cdk.aws_codepipeline import StageProps
-from aws_cdk.aws_codepipeline_actions import CloudFormationDeployStackSetAction, StackSetTemplate, \
-    StackSetDeploymentModel, StackInstances, \
-    S3SourceAction, S3Trigger
-from aws_cdk.aws_s3_deployment import BucketDeployment
+    NestedStack, CfnOutput,
+    aws_codedeploy as codedeploy, RemovalPolicy, aws_autoscaling as autoscaling, )
 from constructs import Construct
 
 

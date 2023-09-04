@@ -5,7 +5,7 @@ from aws_cdk import (
 )
 from aws_cdk.aws_eks import LaunchTemplateSpec, KubernetesVersion, ClusterLoggingTypes
 from aws_cdk.aws_iam import Role, PolicyDocument, PolicyStatement, ServicePrincipal, ManagedPolicy, AccountPrincipal
-from aws_cdk.lambda_layer_kubectl_v23 import KubectlV23Layer
+from aws_cdk.lambda_layer_kubectl_v24 import KubectlV24Layer
 
 from constructs import Construct
 
@@ -13,11 +13,13 @@ from constructs import Construct
 class Eks(NestedStack):
 
     def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, masters_role: Role, control_plane_role: Role,
-                 eks_version: str, control_plane_security_group: ec2.SecurityGroup, endpoint_access: eks.EndpointAccess,
+                 eks_version: KubernetesVersion, control_plane_security_group: ec2.SecurityGroup,
+                 endpoint_access: eks.EndpointAccess,
+                 tags: dict = None,
                  removal_policy: RemovalPolicy = RemovalPolicy.RETAIN, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        kubectl_layer = KubectlV23Layer(self, "kubectl")
+        kubectl_layer = KubectlV24Layer(self, "kubectl")
         kubectl_layer.apply_removal_policy(removal_policy)
 
         masters_role = Role(self, 'MastersRole',
@@ -25,7 +27,7 @@ class Eks(NestedStack):
                                 account_id=self.account))
 
         self.cluster = eks.Cluster(self, "HelloEKS",
-                                   version=KubernetesVersion.of(eks_version),
+                                   version=eks_version,
                                    kubectl_layer=kubectl_layer,
                                    vpc=vpc,
                                    # vpc_subnets=[ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS)],
@@ -35,7 +37,7 @@ class Eks(NestedStack):
                                    role=control_plane_role,
                                    masters_role=masters_role,
                                    # control_plane_security_group=control_plane_security_group,
-                                   # endpoint_access=endpoint_access,
+                                   endpoint_access=eks.EndpointAccess.PUBLIC,
                                    output_cluster_name=True,
                                    output_masters_role_arn=True,
                                    output_config_command=True,
@@ -45,7 +47,7 @@ class Eks(NestedStack):
                                                     ClusterLoggingTypes.CONTROLLER_MANAGER,
                                                     ClusterLoggingTypes.AUDIT,
                                                     ],
-
+                                   tags=tags,
                                    )
 
         CfnOutput(self, 'ClusterArn',
@@ -124,11 +126,11 @@ class Eks(NestedStack):
                                     )
         self.node_group_role.apply_removal_policy(removal_policy)
 
-        eks_optimized_image = ec2.LookupMachineImage(
-            name=f"amazon-eks-node-{eks_version}-*",
-            owners=["amazon"],
-            filters={'architecture': ['x86_64'], 'state': ['available']},
-        )
+        # eks_optimized_image = ec2.LookupMachineImage(
+        #     name=f"amazon-eks-node-{eks_version}-*",
+        #     owners=["amazon"],
+        #     filters={'architecture': ['x86_64'], 'state': ['available']},
+        # )
 
         user_data = ec2.UserData.for_linux()
         user_data.add_commands(
@@ -145,7 +147,7 @@ class Eks(NestedStack):
             '--==MYBOUNDARY==',
         )
         lt = ec2.LaunchTemplate(self, "LaunchTemplate",
-                                machine_image=eks_optimized_image,
+                                # machine_image=eks_optimized_image,
                                 user_data=user_data,
                                 http_endpoint=True,
                                 http_protocol_ipv6=False,
@@ -161,17 +163,21 @@ class Eks(NestedStack):
         node_group = self.cluster.add_nodegroup_capacity(
             'EksClusterNodeGroup',
             min_size=1,  # Default: 1
-            desired_size=2,  # Default: 2
+            desired_size=3,  # Default: 2
             launch_template_spec=LaunchTemplateSpec(
                 id=lt.launch_template_id,
                 version=lt.latest_version_number
             ),
             node_role=self.node_group_role,
+            ami_type=eks.NodegroupAmiType.AL2_X86_64,
             tags={
                 'Name': 'EKS Cluster Node Group',
                 'Label': 'Updated at cluster-level'
             },
+            subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
         )
+        node_group.role.add_managed_policy(
+            ManagedPolicy.from_aws_managed_policy_name('AmazonSSMManagedInstanceCore'))
 
         CfnOutput(self, 'NodeGroupInstanceProfileRole',
                   value=node_group.role.role_arn,

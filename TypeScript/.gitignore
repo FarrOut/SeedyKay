@@ -1,4 +1,5 @@
 node_modules/
+cdk.context.json
 
 *.swp
 package-lock.json

@@ -1,13 +1,15 @@
+import jsii
 from aws_cdk import (
     # Duration,
     Stack, aws_ec2 as ec2,
-    CfnOutput, RemovalPolicy,
+    CfnOutput, RemovalPolicy, Tags, Aspects, IAspect,
 )
-from aws_cdk.aws_eks import EndpointAccess
+from aws_cdk.aws_eks import EndpointAccess, KubernetesVersion, Nodegroup
 from aws_cdk.aws_iam import Role, ManagedPolicy, ServicePrincipal
 from constructs import Construct
 
 from motley.components.orchestration.eks import Eks
+from motley.components.orchestration.mini_eks import MiniEks
 
 
 class EksStack(Stack):
@@ -33,14 +35,28 @@ class EksStack(Stack):
         )
         # control_plane_sg.connections.allow_from()
 
-        self.cluster_stack = Eks(self, 'EksClusterStack',
-                                 vpc=vpc,
-                                 masters_role=None,
-                                 control_plane_role=control_plane_role,
-                                 control_plane_security_group=control_plane_sg,
-                                 endpoint_access=EndpointAccess.PRIVATE,
-                                 eks_version='1.23',
-                                 )
+        # self.cluster_stack = Eks(self, 'EksClusterStack',
+        #                          vpc=vpc,
+        #                          masters_role=None,
+        #                          control_plane_role=control_plane_role,
+        #                          control_plane_security_group=control_plane_sg,
+        #                          endpoint_access=EndpointAccess.PRIVATE,
+        #                          eks_version=KubernetesVersion.of(eks_version),
+        #                          tags=tags,
+        #                          removal_policy=removal_policy,
+        #                          )
+
+        tags = {
+            "mytag": "v1",
+            "anothertag": "Guten Tag",
+            "lasertag":"bzzzz"
+        }
+        self.cluster_stack = MiniEks(self, 'MiniEksClusterStack',
+                                     vpc=vpc,
+                                     eks_version=KubernetesVersion.of(eks_version),
+                                     tags=tags,
+                                     removal_policy=removal_policy,
+                                     )
 
         CfnOutput(self, 'ClusterArn',
                   value=self.cluster_stack.cluster.cluster_arn,
@@ -72,3 +88,16 @@ class EksStack(Stack):
         #           description='The Arn  of the created EKS Cluster ASG.')
         #
         # Tags.of(self.asg).add("Label", "Added at cluster-level")
+
+        # This seems to be the source of all out problems
+        for key in tags:
+            Tags.of(self).add(key, tags[key])
+
+        Aspects.of(self).add(TagRemoverAspect())
+
+
+@jsii.implements(IAspect)
+class TagRemoverAspect:
+    def visit(self, node):
+        if isinstance(node, Nodegroup):
+            node.node.default_child.add_deletion_override("Properties.Tags")
