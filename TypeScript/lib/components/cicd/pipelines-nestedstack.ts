@@ -2,6 +2,8 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {CodePipeline, CodePipelineSource, ShellStep} from 'aws-cdk-lib/pipelines';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as logs from 'aws-cdk-lib/aws-logs';
 
 interface PipelinesProps extends cdk.StackProps {
     RepositoryOwner: string,
@@ -33,6 +35,27 @@ export class PipelinesNestedStack extends cdk.NestedStack {
                     [`npx cdk --version`, 'npm run build', `npx cdk synth ${props.StackName}`],
                 primaryOutputDirectory: `${SubDir}/cdk.out`,
             }),
+            codeBuildDefaults: {
+                buildEnvironment: {
+                    privileged: true,
+                    // buildImage: codebuild.LinuxBuildImage.STANDARD_6_0,
+                    // computeType: codebuild.ComputeType.MEDIUM,
+                },
+                partialBuildSpec: codebuild.BuildSpec.fromObject({
+                    env: {
+                        variables: {
+                            // CDK env variables propagation
+                            GIT_BRANCH: props.BranchName,
+                            // NODE_VERSION: '16',
+                        },
+                    },
+                }),
+                logging: {
+                    cloudWatch: {
+                        logGroup: new logs.LogGroup(this, `PipelinesLogGroup`),
+                    }
+                },
+            },
         });
     }
 
