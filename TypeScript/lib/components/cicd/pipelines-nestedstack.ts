@@ -4,6 +4,7 @@ import {Construct} from 'constructs';
 import {CodePipeline, CodePipelineSource, ShellStep} from 'aws-cdk-lib/pipelines';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 interface PipelinesProps extends cdk.StackProps {
     RepositoryOwner: string,
@@ -35,6 +36,18 @@ export class PipelinesNestedStack extends cdk.NestedStack {
                     [`npx cdk --version`, 'npm run build', `npx cdk synth ${props.StackName}`],
                 primaryOutputDirectory: `${SubDir}/cdk.out`,
             }),
+            rolePolicyStatements: [
+                new iam.PolicyStatement({
+                    actions: ['sts:AssumeRole'],
+                    resources: ['*'],
+                    conditions: {
+                        StringEquals: {
+                            'iam:ResourceTag/aws-cdk:bootstrap-role':
+                                `arn:aws:iam::${AWS::AccountId}:role/cdk-${Qualifier}-lookup-role-${AWS::AccountId}-${AWS::Region}`,
+                        },
+                    },
+                }),
+            ],
             codeBuildDefaults: {
                 buildEnvironment: {
                     privileged: true,
