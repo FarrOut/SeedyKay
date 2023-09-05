@@ -25,7 +25,11 @@ export class PipelinesNestedStack extends cdk.NestedStack {
 
             synth: new ShellStep('Synth', {
                 input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
-                commands: [`cd ${SubDir}`, `pwd`, `ls -la`, 'npm ci', `npx cdk --version`, 'npm run build', 'npx cdk synth'],
+                installCommands: [`cd ${SubDir}`, `pwd`, `ls -la`,
+                    'npm install -g aws-cdk', 'npm ci'
+                ],
+                commands:
+                    [`npx cdk --version`, 'npm run build', 'npx cdk synth'],
                 primaryOutputDirectory: `${SubDir}/cdk.out`,
             }),
         });
