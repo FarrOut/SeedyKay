@@ -8,6 +8,7 @@ interface PipelinesProps extends cdk.StackProps {
     RepositoryName: string,
     BranchName: string,
     Vpc?: ec2.IVpc,
+    StackName: string,
 }
 
 export class PipelinesNestedStack extends cdk.NestedStack {
@@ -29,7 +30,7 @@ export class PipelinesNestedStack extends cdk.NestedStack {
                     'npm install -g aws-cdk', 'npm ci'
                 ],
                 commands:
-                    [`npx cdk --version`, 'npm run build', 'npx cdk synth'],
+                    [`npx cdk --version`, 'npm run build', `npx cdk synth ${StackName}`],
                 primaryOutputDirectory: `${SubDir}/cdk.out`,
             }),
         });

@@ -14,7 +14,8 @@ export class PipelinesStack extends cdk.Stack {
 
         let Pipe = new PipelinesNestedStack(this, 'PipelinesNestedStack', {
             BranchName: "main", RepositoryOwner: "FarrOut",
-            RepositoryName: "SeedyKay"
+            RepositoryName: "SeedyKay",
+            StackName: "PipelinesStack",
         })
 
 
