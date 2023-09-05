@@ -27,15 +27,6 @@ export class PipelinesNestedStack extends cdk.NestedStack {
             pipelineName: 'MyPipeline',
             selfMutation: true,
 
-            synth: new ShellStep('Synth', {
-                input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
-                installCommands: [`cd ${SubDir}`, `pwd`, `ls -la`,
-                    'npm install -g aws-cdk', 'npm ci'
-                ],
-                commands:
-                    [`npx cdk --version`, 'npm run build', `npx cdk synth ${props.StackName}`],
-                primaryOutputDirectory: `${SubDir}/cdk.out`,
-            }),
             rolePolicyStatements: [
                 new iam.PolicyStatement({
                     actions: ['sts:AssumeRole'],
@@ -48,6 +39,16 @@ export class PipelinesNestedStack extends cdk.NestedStack {
                     },
                 }),
             ],
+
+            synth: new ShellStep('Synth', {
+                input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
+                installCommands: [`cd ${SubDir}`, `pwd`, `ls -la`,
+                    'npm install -g aws-cdk', 'npm ci'
+                ],
+                commands:
+                    [`npx cdk --version`, 'npm run build', `npx cdk synth ${props.StackName}`],
+                primaryOutputDirectory: `${SubDir}/cdk.out`,
+            }),
             codeBuildDefaults: {
                 buildEnvironment: {
                     privileged: true,
