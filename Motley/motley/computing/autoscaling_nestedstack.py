@@ -11,10 +11,10 @@ from constructs import Construct
 from motley.computing.autoscaling_config_stack import AutoScalingConfigStack
 
 
+class AutoScalingNestedStack(NestedStack):
 
-class AutoScalingStack(NestedStack):
-
-    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, whitelisted_peer: ec2.Peer, key_name: str, removal_policy: RemovalPolicy,
+    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, whitelisted_peer: ec2.Peer, key_name: str,
+                 removal_policy: RemovalPolicy,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -28,16 +28,16 @@ class AutoScalingStack(NestedStack):
                                                   )
 
         self.asg = autoscaling.AutoScalingGroup(self, "ASG",
-            vpc=vpc,
-            instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO),
+                                                vpc=vpc,
+                                                instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2,
+                                                                                  ec2.InstanceSize.MICRO),
 
-            # The latest Amazon Linux image of a particular generation
-            machine_image=ec2.MachineImage.latest_amazon_linux2(),
-        )
+                                                # The latest Amazon Linux image of a particular generation
+                                                machine_image=ec2.MachineImage.latest_amazon_linux2(),
+                                                )
         self.asg.apply_removal_policy(removal_policy)
 
         CfnOutput(self, 'AsgName',
                   description='The name of the Auto Scaling group. This name must be unique per Region per account.',
                   value=str(self.asg.auto_scaling_group_name),
                   )
-

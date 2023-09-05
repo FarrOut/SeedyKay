@@ -5,11 +5,11 @@ import boto3
 from aws_cdk import RemovalPolicy, App, Environment
 from aws_cdk.aws_secretsmanager import Secret
 
+from motley.solutions.autoscaling_stack import AutoscalingStack
 from motley.solutions.networking_stack import NetworkingStack
 from motley.solutions.analytics_stack import AnalyticsStack
 from motley.solutions.container_stack import ContainerStack
 
-from motley.CICD.canary_deployment_stack import CanaryDeploymentStack
 from motley.solutions.eks_stack import EksStack
 from motley.solutions.security_stack import SecurityStack
 
@@ -72,14 +72,21 @@ eks = EksStack(
     ),
 )
 
-canary_deployment = CanaryDeploymentStack(
+# canary_deployment = CanaryDeploymentStack(
+#     app,
+#     "CanaryDeploymentStack",
+#     removal_policy=RemovalPolicy.DESTROY,
+#     vpc=net.vpc,
+#     env=Environment(
+#         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+#     ),
+# )
+
+autoscaling = AutoscalingStack(
     app,
-    "CanaryDeploymentStack",
+    "AutoscalingStack",
     removal_policy=RemovalPolicy.DESTROY,
-    vpc=net.vpc,
-    env=Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-    ),
+    env=default_env,
 )
 
 app.synth()

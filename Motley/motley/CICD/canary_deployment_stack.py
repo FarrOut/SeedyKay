@@ -7,7 +7,7 @@ from constructs import Construct
 
 from motley.CICD.codedeploy_stack import CodeDeployStack
 from motley.components.networking.application_load_balancer_stack import LoadBalancerStack
-from motley.computing.autoscaling_stack import AutoScalingStack
+from motley.computing.autoscaling_nestedstack import AutoScalingNestedStack
 
 
 class CanaryDeploymentStack(Stack):
@@ -23,7 +23,7 @@ class CanaryDeploymentStack(Stack):
         )
         CfnOutput(self, "LoadBalancerDnsName", value=lb.alb.load_balancer_dns_name, description='The DNS name of this load balancer.')        
 
-        asg = AutoScalingStack(
+        asg = AutoScalingNestedStack(
             self,
             "AutoScalingStack",
             removal_policy=RemovalPolicy.DESTROY,
