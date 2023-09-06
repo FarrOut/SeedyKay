@@ -5,6 +5,7 @@ import boto3
 from aws_cdk import RemovalPolicy, App, Environment
 from aws_cdk.aws_secretsmanager import Secret
 
+from motley.components.security.waf_cloudfront_stack import WafCloudFrontStack
 from motley.solutions.autoscaling_stack import AutoscalingStack
 from motley.solutions.networking_stack import NetworkingStack
 from motley.solutions.analytics_stack import AnalyticsStack
@@ -26,10 +27,16 @@ euro_env = Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region='eu-cent
 cross_account_a = app.node.try_get_context("cross_account_a")
 cross_account_b = app.node.try_get_context("cross_account_b")
 
+waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
+    account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
+), )
+
 net = NetworkingStack(
     app,
     "NetworkingStack",
+    waf=waf_stack.waf,
     removal_policy=RemovalPolicy.DESTROY,
+    cross_region_references=True,
     env=Environment(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),

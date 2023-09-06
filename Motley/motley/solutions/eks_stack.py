@@ -49,7 +49,7 @@ class EksStack(Stack):
         tags = {
             "mytag": "v1",
             "anothertag": "Guten Tag",
-            "lasertag":"bzzzz"
+            "lasertag":"bzzzzzzzz"
         }
         self.cluster_stack = MiniEks(self, 'MiniEksClusterStack',
                                      vpc=vpc,

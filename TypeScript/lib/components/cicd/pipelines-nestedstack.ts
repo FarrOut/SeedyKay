@@ -27,18 +27,18 @@ export class PipelinesNestedStack extends cdk.NestedStack {
             pipelineName: 'MyPipeline',
             selfMutation: true,
 
-            rolePolicyStatements: [
-                new iam.PolicyStatement({
-                    actions: ['sts:AssumeRole'],
-                    resources: ['*'],
-                    conditions: {
-                        StringEquals: {
-                            'iam:ResourceTag/aws-cdk:bootstrap-role':
-                                `arn:aws:iam::${AWS::AccountId}:role/cdk-${Qualifier}-lookup-role-${AWS::AccountId}-${AWS::Region}`,
-                        },
-                    },
-                }),
-            ],
+            // rolePolicyStatements: [
+            //     new iam.PolicyStatement({
+            //         actions: ['sts:AssumeRole'],
+            //         resources: ['*'],
+            //         conditions: {
+            //             StringEquals: {
+            //                 'iam:ResourceTag/aws-cdk:bootstrap-role':
+            //                     `arn:aws:iam::${AWS::AccountId}:role/cdk-${Qualifier}-lookup-role-${AWS::AccountId}-${AWS::Region}`,
+            //             },
+            //         },
+            //     }),
+            // ],
 
             synth: new ShellStep('Synth', {
                 input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
