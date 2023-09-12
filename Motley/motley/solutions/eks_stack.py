@@ -49,7 +49,7 @@ class EksStack(Stack):
         tags = {
             "mytag": "v1",
             "anothertag": "Guten Tag",
-            "lasertag":"bzzzzzzzz"
+            "lasertag": "bbzzzzzz"
         }
         self.cluster_stack = MiniEks(self, 'MiniEksClusterStack',
                                      vpc=vpc,
@@ -91,13 +91,13 @@ class EksStack(Stack):
 
         # This seems to be the source of all out problems
         for key in tags:
-            Tags.of(self).add(key, tags[key])
+            Tags.of(self).add(key, tags[key],
+                              exclude_resource_types=['AWS::EKS::Nodegroup', 'AWS::EC2::LaunchTemplate'], )
 
-        Aspects.of(self).add(TagRemoverAspect())
+        # Aspects.of(self).add(TagRemoverAspect())
 
-
-@jsii.implements(IAspect)
-class TagRemoverAspect:
-    def visit(self, node):
-        if isinstance(node, Nodegroup):
-            node.node.default_child.add_deletion_override("Properties.Tags")
+# @jsii.implements(IAspect)
+# class TagRemoverAspect:
+#     def visit(self, node):
+#         if isinstance(node, Nodegroup):
+#             node.node.default_child.add_deletion_override("Properties.Tags")

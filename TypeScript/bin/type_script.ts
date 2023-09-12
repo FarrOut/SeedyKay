@@ -3,6 +3,7 @@
 import * as cdk from 'aws-cdk-lib';
 import {EksStack} from '../lib/stacks/eks-stack';
 import {LambdaStack} from '../lib/stacks/lambda-stack';
+import {SecurityStack} from '../lib/stacks/security-stack';
 import {PipelinesStack} from '../lib/stacks/pipelines-stack';
 
 const app = new cdk.App();
@@ -18,6 +19,10 @@ new LambdaStack(app, 'LambdaStack', {
 });
 
 new EksStack(app, 'EksStack', {
+    env: default_env,
+});
+
+new SecurityStack(app, 'SecurityStack', {
     env: default_env,
 });
 
