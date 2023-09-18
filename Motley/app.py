@@ -4,12 +4,14 @@ import os
 import boto3
 from aws_cdk import RemovalPolicy, App, Environment
 from aws_cdk.aws_secretsmanager import Secret
+from motley.solutions.lambda_stack import LambdaStack
 
 from motley.components.security.waf_cloudfront_stack import WafCloudFrontStack
 from motley.solutions.autoscaling_stack import AutoscalingStack
 from motley.solutions.networking_stack import NetworkingStack
 from motley.solutions.analytics_stack import AnalyticsStack
 from motley.solutions.container_stack import ContainerStack
+from motley.solutions.events_stack import EventsStack
 
 from motley.solutions.eks_stack import EksStack
 from motley.solutions.security_stack import SecurityStack
@@ -55,6 +57,20 @@ security = SecurityStack(
     "SecurityStack",
     removal_policy=RemovalPolicy.DESTROY,
     env=euro_env,
+)
+
+events = EventsStack(
+    app,
+    "EventsStack",
+    removal_policy=RemovalPolicy.DESTROY,
+    env=default_env,
+)
+
+lambda_ = LambdaStack(
+    app,
+    "LambdaStack",
+    removal_policy=RemovalPolicy.DESTROY,
+    env=default_env,
 )
 
 containers = ContainerStack(
