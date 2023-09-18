@@ -1,4 +1,4 @@
-aws-cdk-lib>=2.96.0
+aws-cdk-lib>=2.96.2
 constructs>=10.0.0,<11.0.0
 boto3
 aws-cdk.lambda-layer-kubectl-v23

@@ -1,6 +1,6 @@
 from aws_cdk import (
     # Duration,
-    Stack, aws_ec2 as ec2,
+    Stack, aws_ec2 as ec2, aws_efs as efs, aws_lambda as lambda_,
     RemovalPolicy, CfnOutput,
 )
 from aws_cdk.aws_ecs import ContainerImage
@@ -21,6 +21,5 @@ class LambdaStack(Stack):
         net = VpcNestedStack(self, "VpcStack", removal_policy=removal_policy)
         vpc = net.vpc
 
-        self.efs = EfsNestedStack(self, "EfsNestedStack", removal_policy=removal_policy, vpc=vpc,)
-
-        self.lambda_ = LambdaNestedStack(self, "LambdaNestedStack", file_system=self.efs.file_system, vpc=vpc,removal_policy=removal_policy)
+        self.lambda_ = LambdaNestedStack(self, "LambdaNestedStack",
+                                         vpc=vpc, removal_policy=removal_policy)
