@@ -19,6 +19,37 @@ from motley.solutions.security_stack import SecurityStack
 
 secretsmanager_ = boto3.client("secretsmanager")
 
+
+def __is_exists(filter_tag: str = SecurityStack.special_tag, region: str = os.getenv('CDK_DEFAULT_REGION')) -> bool:
+    print(f'Looking up SecurityGroups in \'{region}\' region.')
+    session = boto3.Session(profile_name='default', region_name=region)
+    ec2_client = session.client('ec2')
+
+    response = ec2_client.describe_security_groups(
+        # Filters=[
+        #     {
+        #         'Name': 'tag-key',
+        #         'Values': [
+        #             filter_tag,
+        #         ]
+        #     },
+        # ],
+        # GroupIds=[
+        #     'string',
+        # ],
+        # GroupNames=[
+        #     'string',
+        # ],
+        # DryRun=False,
+        # NextToken='string',
+        # MaxResults=123
+    )
+    print(f'number of results ------------------> {len(response["SecurityGroups"])}')
+
+    return len(response["SecurityGroups"]) > 0
+
+__is_exists()
+
 app = App()
 peers = app.node.try_get_context("peers")
 app_name = "motley"

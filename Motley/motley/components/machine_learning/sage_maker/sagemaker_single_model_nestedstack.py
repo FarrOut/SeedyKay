@@ -1,8 +1,7 @@
 from aws_cdk import (
     # Duration,
-    NestedStack, aws_cloudwatch as cloudwatch,
-    aws_sagemaker_alpha as sagemaker,
-    RemovalPolicy, CfnOutput, Tags, )
+    NestedStack, aws_sagemaker_alpha as sagemaker,
+    RemovalPolicy, CfnOutput, )
 from constructs import Construct
 
 
