@@ -3,3 +3,4 @@ constructs>=10.0.0,<11.0.0
 boto3
 aws-cdk.lambda-layer-kubectl-v23
 aws-cdk.lambda-layer-kubectl-v24
+aws-cdk.aws-sagemaker-alpha

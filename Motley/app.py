@@ -8,6 +8,7 @@ from motley.solutions.lambda_stack import LambdaStack
 
 from motley.components.security.waf_cloudfront_stack import WafCloudFrontStack
 from motley.solutions.autoscaling_stack import AutoscalingStack
+from motley.solutions.machine_learning_stack import MachineLearningStack
 from motley.solutions.networking_stack import NetworkingStack
 from motley.solutions.analytics_stack import AnalyticsStack
 from motley.solutions.container_stack import ContainerStack
@@ -93,6 +94,13 @@ eks = EksStack(
     env=Environment(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
+)
+
+ml = MachineLearningStack(
+    app,
+    "MachineLearningStack",
+    removal_policy=RemovalPolicy.DESTROY,
+    env=default_env,
 )
 
 # canary_deployment = CanaryDeploymentStack(
