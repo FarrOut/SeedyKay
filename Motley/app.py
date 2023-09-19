@@ -87,7 +87,7 @@ containers = ContainerStack(
 eks = EksStack(
     app,
     "EksStack",
-    vpc=net.vpc,
+    # vpc=net.vpc,
     eks_version='1.24',
     removal_policy=RemovalPolicy.DESTROY,
     env=Environment(

@@ -8,17 +8,22 @@ from aws_cdk.aws_eks import EndpointAccess, KubernetesVersion, Nodegroup
 from aws_cdk.aws_iam import Role, ManagedPolicy, ServicePrincipal
 from constructs import Construct
 
+from motley.components.networking.vpc_stack import VpcNestedStack
 from motley.components.orchestration.eks import Eks
 from motley.components.orchestration.mini_eks import MiniEks
 
 
 class EksStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc,
-                 eks_version: str,
+    def __init__(self, scope: Construct, construct_id: str,
+                 eks_version: str, vpc: ec2.Vpc = None,
                  removal_policy: RemovalPolicy = RemovalPolicy.RETAIN,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+
+        if vpc is None:
+            net = VpcNestedStack(self, "VpcStack", removal_policy=removal_policy)
+            vpc = net.vpc
 
         control_plane_role = Role(self, "ControlPlaneRole",
                                   assumed_by=ServicePrincipal("eks.amazonaws.com")
@@ -35,28 +40,29 @@ class EksStack(Stack):
         )
         # control_plane_sg.connections.allow_from()
 
-        # self.cluster_stack = Eks(self, 'EksClusterStack',
-        #                          vpc=vpc,
-        #                          masters_role=None,
-        #                          control_plane_role=control_plane_role,
-        #                          control_plane_security_group=control_plane_sg,
-        #                          endpoint_access=EndpointAccess.PRIVATE,
-        #                          eks_version=KubernetesVersion.of(eks_version),
-        #                          tags=tags,
-        #                          removal_policy=removal_policy,
-        #                          )
-
         tags = {
             "mytag": "v1",
             "anothertag": "Guten Tag",
             "lasertag": "bbzzzzzz"
         }
-        self.cluster_stack = MiniEks(self, 'MiniEksClusterStack',
-                                     vpc=vpc,
-                                     eks_version=KubernetesVersion.of(eks_version),
-                                     tags=tags,
-                                     removal_policy=removal_policy,
-                                     )
+
+        self.cluster_stack = Eks(self, 'EksClusterStack',
+                                 vpc=vpc,
+                                 masters_role=None,
+                                 control_plane_role=control_plane_role,
+                                 control_plane_security_group=control_plane_sg,
+                                 endpoint_access=EndpointAccess.PRIVATE,
+                                 eks_version=KubernetesVersion.of(eks_version),
+                                 tags=tags,
+                                 removal_policy=removal_policy,
+                                 )
+
+        # self.cluster_stack = MiniEks(self, 'MiniEksClusterStack',
+        #                              vpc=vpc,
+        #                              eks_version=KubernetesVersion.of(eks_version),
+        #                              tags=tags,
+        #                              removal_policy=removal_policy,
+        #                              )
 
         CfnOutput(self, 'ClusterArn',
                   value=self.cluster_stack.cluster.cluster_arn,

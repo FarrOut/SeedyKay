@@ -62,6 +62,11 @@ class Eks(NestedStack):
                   value=self.cluster.role.role_arn,
                   description='IAM role assumed by the EKS Control Plane.'
                   )
+        CfnOutput(self, 'ClusterAdminRoleArn',
+                  value=self.cluster.admin_role.role_arn,
+                  description='An IAM role with administrative permissions to create or update the cluster. This role '
+                              'also has systems:master permissions.'
+                  )
 
         CfnOutput(self, 'OidcProvider', value=self.cluster.open_id_connect_provider.open_id_connect_provider_arn)
         CfnOutput(self, 'SecurityGroupId', value=self.cluster.cluster_security_group_id)
