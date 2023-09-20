@@ -5,7 +5,7 @@ import {AlwaysUpdatingLambdaFunctionStack} from "../../compute/lambda/always-upd
 
 interface MyProps extends cdk.StageProps {
     LogGroup?: logs.ILogGroup,
-    removalPolicy?: cdk.RemovalPolicy,
+    removalPolicy: cdk.RemovalPolicy,
     testType: TestType,
 }
 
