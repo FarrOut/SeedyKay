@@ -28,5 +28,11 @@ new SecurityStack(app, 'SecurityStack', {
 
 new PipelinesStack(app, 'PipelinesStack', {
     env: default_env,
+
+    BranchName: "main",
+    RepositoryOwner: "FarrOut",
+    RepositoryName: "SeedyKay",
+    removalPolicy: cdk.RemovalPolicy.DESTROY,
+    SubDir: "TypeScript"
 });
 
