@@ -80,7 +80,7 @@ export class PipelinesStack extends cdk.Stack {
 
         /**
          *
-         * Add testing wave
+         * Add Testing wave
          *
          */
         const testingWave = this.pipeline.addWave('Testing')
@@ -97,7 +97,13 @@ export class PipelinesStack extends cdk.Stack {
                 removalPolicy: props.removalPolicy,
             }))
 
-        this.pipeline.addStage(
+        /**
+         *
+         * Add Release wave
+         *
+         */
+        const releaseWave = this.pipeline.addWave('Release')
+        releaseWave.addStage(
             new ProductionStage(this, 'ProductionStage',
                 {
                     removalPolicy: props.removalPolicy,
