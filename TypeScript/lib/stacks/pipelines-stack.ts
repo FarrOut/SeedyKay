@@ -7,7 +7,7 @@ import {CodePipeline, CodePipelineSource, ShellStep} from 'aws-cdk-lib/pipelines
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import {S3NestedStack} from "../components/storage/s3-nestedstack";
-import {TestingStage} from "../components/cicd/stages/testing-stage";
+import {TestingStage, TestType} from "../components/cicd/stages/testing-stage";
 
 interface PipelinesProps extends cdk.StackProps {
     RepositoryOwner: string,
@@ -85,7 +85,7 @@ export class PipelinesStack extends cdk.Stack {
         const testingWave = this.pipeline.addWave('Testing')
         testingWave.addStage(new TestingStage(this, 'IntegrationTestingStage',
             {
-                testType: TestingStage.TestType.INTEGRATION,
+                testType: TestType.INTEGRATION,
                 removalPolicy: props.removalPolicy,
             }))
 
