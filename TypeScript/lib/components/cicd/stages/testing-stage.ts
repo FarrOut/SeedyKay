@@ -10,10 +10,10 @@ interface MyProps {
 }
 
 enum TestType {
-    INTEGRATION,
-    REGRESSION,
-    UNIT,
-    SMOKE
+    INTEGRATION = 'Integration',
+    REGRESSION = 'Regression',
+    UNIT = 'Unit',
+    SMOKE = 'Smoke',
 }
 
 export class TestingStage extends cdk.Stage {
@@ -27,6 +27,6 @@ export class TestingStage extends cdk.Stage {
                 removalPolicy: props.removalPolicy,
             })
 
-        // CfnOutput(this, 'TestType', value:props.testType. )
+        CfnOutput(this, 'TestType', {value: props.testType, description: "Type of test this is."})
     }
 }
