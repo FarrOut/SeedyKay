@@ -21,6 +21,7 @@ export class PipelinesStack extends cdk.Stack {
             StackName: "PipelinesStack",
             LogGroup: MyLogGroup,
             removalPolicy: myRemovalPolicy,
+            stackName: this.stackName,
         })
 
 

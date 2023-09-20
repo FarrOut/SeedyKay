@@ -14,12 +14,12 @@ interface PipelinesProps extends cdk.StackProps {
     StackName: string,
     LogGroup?: logs.ILogGroup,
     removalPolicy?: cdk.RemovalPolicy,
+    stackName?: string,
 }
 
 export class PipelinesNestedStack extends cdk.NestedStack {
 
     public readonly pipeline: CodePipeline;
-    private readonly stackName: string = "PipelinesStack";
 
     // rolePolicyStatements: [
     //     new iam.PolicyStatement({
@@ -71,7 +71,7 @@ export class PipelinesNestedStack extends cdk.NestedStack {
                         // },
                         build: {
                             commands: [
-                                `cdk -a . deploy ${this.stackName} --require-approval=never --verbose`
+                                `cdk -a . deploy ${props.stackName} --require-approval=never --verbose`
                             ]
                         }
                     },
