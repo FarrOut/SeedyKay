@@ -37,24 +37,30 @@ export class PipelinesStack extends cdk.Stack {
             bucketName: cdk.PhysicalName.GENERATE_IF_NEEDED,
         }).bucket
 
+        const synthStep = new ShellStep('Synth', {
+            input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
+            // installCommands: [`cd ${SubDir}`, `pwd`, `ls -la`,
+            //     'npm install -g aws-cdk',
+            // ],
+            commands:
+                [`cd ${props.SubDir}`, `pwd`,
+                    'npm ci', `npx cdk --version`,
+                    'npm run build',
+                    `npx cdk synth ${this.stackName}`],
+            /*
+             * We need to define 'primaryOutputDirectory' because
+             * our CDK app is not in the root of the project structure.
+             */
+            primaryOutputDirectory: `${props.SubDir}/cdk.out`,
+        })
+
         this.pipeline = new CodePipeline(this, 'Pipeline', {
             pipelineName: 'MyPipeline',
             selfMutation: true,
 
             artifactBucket: props.artifactBucket,
 
-            synth: new ShellStep('Synth', {
-                input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
-                // installCommands: [`cd ${SubDir}`, `pwd`, `ls -la`,
-                //     'npm install -g aws-cdk',
-                // ],
-                commands:
-                    [`cd ${props.SubDir}`, `pwd`,
-                        'npm ci', `npx cdk --version`,
-                        'npm run build',
-                        `npx cdk synth ${this.stackName}`],
-                primaryOutputDirectory: `${props.SubDir}/cdk.out`,
-            }),
+            synth: synthStep,
             codeBuildDefaults: {
                 buildEnvironment: {
                     // privileged: true,
@@ -88,8 +94,8 @@ export class PipelinesStack extends cdk.Stack {
             {
                 removalPolicy: props.removalPolicy,
             })).addPost(
-            new CodeBuildStep('RunIntegrationTests', {
-                // input: synth,
+            new ShellStep('RunIntegrationTests', {
+                input: synthStep,
                 installCommands: [
                     'npm run install-all',
                     'sudo apt-get install jq'
@@ -98,6 +104,7 @@ export class PipelinesStack extends cdk.Stack {
                     'echo "Let\'s run some tests!!"',
                 ],
                 env: {},
+                primaryOutputDirectory: `${props.SubDir}/cdk.out`,
             }),
         )
         testingWave.addStage(new MyApplicationStage(this, 'TestingStageBeta',
