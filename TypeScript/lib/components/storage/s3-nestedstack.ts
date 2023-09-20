@@ -5,6 +5,7 @@ import {Construct} from 'constructs';
 interface MyStackProps extends cdk.StackProps {
     removalPolicy: cdk.RemovalPolicy,
     autoDeleteObjects: boolean,
+    bucketName?: string,
 }
 
 export class S3NestedStack extends cdk.Stack {
@@ -15,6 +16,8 @@ export class S3NestedStack extends cdk.Stack {
         super(scope, id, props);
 
         this.bucket = new s3.Bucket(scope, 'Bucket', {
+            bucketName: props.bucketName,
+
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
             encryption: s3.BucketEncryption.S3_MANAGED,
             enforceSSL: true,

@@ -32,6 +32,7 @@ export class PipelinesStack extends cdk.Stack {
         props.artifactBucket = new S3NestedStack(this, 'ArtifactBucketNestedStack', {
             removalPolicy: props.removalPolicy,
             autoDeleteObjects: true,
+            bucketName: cdk.PhysicalName.GENERATE_IF_NEEDED,
         }).bucket
 
         this.pipeline = new CodePipeline(this, 'Pipeline', {
