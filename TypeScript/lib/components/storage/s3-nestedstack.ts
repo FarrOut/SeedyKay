@@ -27,10 +27,6 @@ export class S3NestedStack extends cdk.Stack {
             value: this.bucket.bucketArn,
             description: 'The ARN of the bucket.', // Optional
         });
-        new cdk.CfnOutput(this, 'AutoCreatePolicy', {
-            value: String(this.bucket.autoCreatePolicy),
-            description: 'Indicates if a bucket resource policy should automatically created upon the first call to addToResourcePolicy.', // Optional
-        });
         new cdk.CfnOutput(this, 'BucketDomainName', {
             value: this.bucket.bucketDomainName,
             description: 'The IPv4 DNS name of the specified bucket.', // Optional
