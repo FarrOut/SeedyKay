@@ -1,4 +1,5 @@
 {
+  "profile": "default",
   "app": "npx ts-node --prefer-ts-exts bin/type_script.ts",
   "watch": {
     "include": [

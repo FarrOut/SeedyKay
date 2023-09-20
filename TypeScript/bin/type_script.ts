@@ -8,7 +8,7 @@ import {PipelinesStack} from '../lib/stacks/pipelines-stack';
 
 const app = new cdk.App();
 
-const default_env = { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION }
+const default_env = {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION}
 
 // const net = new NetworkingStack(app, 'NetworkingStack', {
 //     env: default_env,
