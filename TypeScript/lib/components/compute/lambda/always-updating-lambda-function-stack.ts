@@ -7,7 +7,7 @@ import * as cdk from 'aws-cdk-lib';
 
 interface MyProps {
     LogGroup?: logs.ILogGroup,
-    removalPolicy?: cdk.RemovalPolicy,
+    removalPolicy: cdk.RemovalPolicy,
 }
 
 export class AlwaysUpdatingLambdaFunctionStack extends NestedStack {
