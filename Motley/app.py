@@ -4,6 +4,8 @@ import os
 import boto3
 from aws_cdk import RemovalPolicy, App, Environment
 from aws_cdk.aws_secretsmanager import Secret
+
+from motley.solutions.documentdb_stack import DocumentDbStack
 from motley.solutions.lambda_stack import LambdaStack
 
 from motley.components.security.waf_cloudfront_stack import WafCloudFrontStack
@@ -30,42 +32,47 @@ euro_env = Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region='eu-cent
 cross_account_a = app.node.try_get_context("cross_account_a")
 cross_account_b = app.node.try_get_context("cross_account_b")
 
-waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
-    account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
-), )
+##############
+# STACKS #
+##############
 
-net = NetworkingStack(
-    app,
-    "NetworkingStack",
-    waf=waf_stack.waf,
-    removal_policy=RemovalPolicy.DESTROY,
-    cross_region_references=True,
-    env=Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-    ),
-)
 
-analytics = AnalyticsStack(
-    app,
-    "AnalyticsStack",
-    env=Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-    ),
-)
+# waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
+#     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
+# ), )
 
-security = SecurityStack(
-    app,
-    "SecurityStack",
-    removal_policy=RemovalPolicy.DESTROY,
-    env=euro_env,
-)
+# net = NetworkingStack(
+#     app,
+#     "NetworkingStack",
+#     waf=waf_stack.waf,
+#     removal_policy=RemovalPolicy.DESTROY,
+#     cross_region_references=True,
+#     env=Environment(
+#         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+#     ),
+# )
 
-events = EventsStack(
-    app,
-    "EventsStack",
-    removal_policy=RemovalPolicy.DESTROY,
-    env=default_env,
-)
+# analytics = AnalyticsStack(
+#     app,
+#     "AnalyticsStack",
+#     env=Environment(
+#         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+#     ),
+# )
+
+# security = SecurityStack(
+#     app,
+#     "SecurityStack",
+#     removal_policy=RemovalPolicy.DESTROY,
+#     env=euro_env,
+# )
+
+# events = EventsStack(
+#     app,
+#     "EventsStack",
+#     removal_policy=RemovalPolicy.DESTROY,
+#     env=default_env,
+# )
 
 lambda_ = LambdaStack(
     app,
@@ -74,16 +81,16 @@ lambda_ = LambdaStack(
     env=default_env,
 )
 
-containers = ContainerStack(
-    app,
-    "ContainerStack",
-    # vpc=net.vpc,
-    image_name='farrout/reponderous:latest',
-    secret_arn=security.secret.secret_full_arn,
-    removal_policy=RemovalPolicy.DESTROY,
-    env=africa_env,
-    cross_region_references=True,
-)
+# containers = ContainerStack(
+#     app,
+#     "ContainerStack",
+#     # vpc=net.vpc,
+#     image_name='farrout/reponderous:latest',
+#     secret_arn=security.secret.secret_full_arn,
+#     removal_policy=RemovalPolicy.DESTROY,
+#     env=africa_env,
+#     cross_region_references=True,
+# )
 
 eks = EksStack(
     app,
@@ -96,12 +103,12 @@ eks = EksStack(
     ),
 )
 
-ml = MachineLearningStack(
-    app,
-    "MachineLearningStack",
-    removal_policy=RemovalPolicy.DESTROY,
-    env=default_env,
-)
+# ml = MachineLearningStack(
+#     app,
+#     "MachineLearningStack",
+#     removal_policy=RemovalPolicy.DESTROY,
+#     env=default_env,
+# )
 
 # canary_deployment = CanaryDeploymentStack(
 #     app,
@@ -113,11 +120,19 @@ ml = MachineLearningStack(
 #     ),
 # )
 
-autoscaling = AutoscalingStack(
+# autoscaling = AutoscalingStack(
+#     app,
+#     "AutoscalingStack",
+#     removal_policy=RemovalPolicy.DESTROY,
+#     env=default_env,
+# )
+
+docdb = DocumentDbStack(
     app,
-    "AutoscalingStack",
-    removal_policy=RemovalPolicy.DESTROY,
-    env=default_env,
+    "DocumentDbStack",
+    env=Environment(
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+    ),
 )
 
 app.synth()
