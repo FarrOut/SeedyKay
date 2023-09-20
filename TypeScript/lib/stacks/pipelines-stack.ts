@@ -97,7 +97,7 @@ export class PipelinesStack extends cdk.Stack {
             new CodeBuildStep('RunIntegrationTests', {
                 input: synthStep,
                 installCommands: [
-                    `cd ${props.SubDir}`, `pwd`,
+                    'ls -la', `cd ${props.SubDir}`, `pwd`,
                     'npm run install-all',
                     'sudo apt-get install jq'
                 ],
@@ -115,7 +115,7 @@ export class PipelinesStack extends cdk.Stack {
             new CodeBuildStep('RunSmokeTests', {
                 input: synthStep,
                 installCommands: [
-                    `cd ${props.SubDir}`, `pwd`,
+                    'ls -la', `cd ${props.SubDir}`, `pwd`,
                 ],
                 commands: [
                     'echo "Let\'s run some smoke tests!!"',
