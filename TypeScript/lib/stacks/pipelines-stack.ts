@@ -2,6 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {LogGroupNestedStack} from "../components/logging/log-group-nestedstack";
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import {CodePipeline, CodePipelineSource, ShellStep} from 'aws-cdk-lib/pipelines';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 
 interface PipelinesProps extends cdk.StackProps {
     RepositoryOwner: string,
@@ -21,7 +24,7 @@ export class PipelinesStack extends cdk.Stack {
         super(scope, id, props);
 
         let MyLogGroup = new LogGroupNestedStack(this, 'LogGroupNestedStack',
-            {removalPolicy: myRemovalPolicy, retention: logs.RetentionDays.ONE_WEEK}).logGroup
+            {removalPolicy: props.removalPolicy, retention: logs.RetentionDays.ONE_WEEK}).logGroup
 
         this.pipeline = new CodePipeline(this, 'Pipeline', {
             pipelineName: 'MyPipeline',

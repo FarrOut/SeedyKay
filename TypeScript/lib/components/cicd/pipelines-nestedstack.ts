@@ -14,7 +14,6 @@ interface PipelinesProps extends cdk.StackProps {
     StackName: string,
     LogGroup?: logs.ILogGroup,
     removalPolicy?: cdk.RemovalPolicy,
-    stackName?: string,
 }
 
 export class PipelinesNestedStack extends cdk.NestedStack {
