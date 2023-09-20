@@ -19,6 +19,7 @@ interface PipelinesProps extends cdk.StackProps {
 export class PipelinesNestedStack extends cdk.NestedStack {
 
     public readonly pipeline: CodePipeline;
+    private readonly stackName: string = "PipelinesStack";
 
     // rolePolicyStatements: [
     //     new iam.PolicyStatement({
@@ -62,6 +63,18 @@ export class PipelinesNestedStack extends cdk.NestedStack {
                     // computeType: codebuild.ComputeType.MEDIUM,
                 },
                 partialBuildSpec: codebuild.BuildSpec.fromObject({
+                    phases: {
+                        // "install": {
+                        //     "commands": [
+                        //         "npm install -g aws-cdk@2"
+                        //     ]
+                        // },
+                        build: {
+                            commands: [
+                                `cdk -a . deploy ${this.stackName} --require-approval=never --verbose`
+                            ]
+                        }
+                    },
                     env: {
                         variables: {
                             // CDK env variables propagation
