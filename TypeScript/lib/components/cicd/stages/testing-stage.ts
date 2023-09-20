@@ -9,7 +9,7 @@ interface MyProps extends cdk.StageProps {
     testType: TestType,
 }
 
-enum TestType {
+export enum TestType {
     INTEGRATION = 'Integration',
     REGRESSION = 'Regression',
     UNIT = 'Unit',

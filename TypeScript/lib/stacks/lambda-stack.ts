@@ -1,7 +1,6 @@
-import { VpcNestedStack } from '../components/networking/vpc-nestedstack';
 import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-import { AlwaysUpdatingLambdaFunctionStack } from '../components/compute/lambda/always-updating-lambda-function-stack';
+import {Construct} from 'constructs';
+import {AlwaysUpdatingLambdaFunctionStack} from '../components/compute/lambda/always-updating-lambda-function-stack';
 
 /* ===============================================================================
 // === References ===
@@ -18,7 +17,9 @@ export class LambdaStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        let LambdaStack = new AlwaysUpdatingLambdaFunctionStack(this, 'AlwaysUpdatingLambdaFunctionStack')
+        let LambdaStack = new AlwaysUpdatingLambdaFunctionStack(this, 'AlwaysUpdatingLambdaFunctionStack', {
+            removalPolicy: cdk.RemovalPolicy.DESTROY,
+        })
         this.functionArn = LambdaStack.function.functionArn;
         new cdk.CfnOutput(this, 'LambdaFunctionArn', {
             value: this.functionArn,
