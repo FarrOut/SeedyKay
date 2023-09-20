@@ -8,7 +8,7 @@ interface MyStackProps extends cdk.StackProps {
     bucketName?: string,
 }
 
-export class S3NestedStack extends cdk.Stack {
+export class S3NestedStack extends cdk.NestedStack {
 
     public readonly bucket: s3.IBucket;
 
