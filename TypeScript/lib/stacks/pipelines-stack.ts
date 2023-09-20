@@ -5,6 +5,8 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import {CodePipeline, CodePipelineSource, ShellStep} from 'aws-cdk-lib/pipelines';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import {S3NestedStack} from "../components/storage/s3-nestedstack";
 
 interface PipelinesProps extends cdk.StackProps {
     RepositoryOwner: string,
@@ -14,6 +16,7 @@ interface PipelinesProps extends cdk.StackProps {
     LogGroup?: logs.ILogGroup,
     removalPolicy: cdk.RemovalPolicy,
     SubDir?: string,
+    artifactBucket?: s3.IBucket,
 }
 
 export class PipelinesStack extends cdk.Stack {
@@ -26,9 +29,16 @@ export class PipelinesStack extends cdk.Stack {
         props.LogGroup = new LogGroupNestedStack(this, 'LogGroupNestedStack',
             {removalPolicy: props.removalPolicy, retention: logs.RetentionDays.ONE_WEEK}).logGroup
 
+        props.artifactBucket = new S3NestedStack(this, 'ArtifactBucketNestedStack', {
+            removalPolicy: props.removalPolicy,
+            autoDeleteObjects: true,
+        })
+
         this.pipeline = new CodePipeline(this, 'Pipeline', {
             pipelineName: 'MyPipeline',
             selfMutation: true,
+
+            artifactBucket: props.artifactBucket,
 
             synth: new ShellStep('Synth', {
                 input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
