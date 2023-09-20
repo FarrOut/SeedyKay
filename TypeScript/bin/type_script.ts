@@ -16,6 +16,7 @@ const default_env = {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.e
 
 new LambdaStack(app, 'LambdaStack', {
     env: default_env,
+    removalPolicy: cdk.RemovalPolicy.DESTROY,
 });
 
 new EksStack(app, 'EksStack', {
