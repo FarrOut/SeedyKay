@@ -82,19 +82,16 @@ export class PipelinesStack extends cdk.Stack {
          * Add testing wave
          *
          */
-        const test_account = this.account
         const testingWave = this.pipeline.addWave('Testing')
         testingWave.addStage(new TestingStage(this, 'IntegrationTestingStage',
             {
                 testType: TestType.INTEGRATION,
                 removalPolicy: props.removalPolicy,
-                env: {account: test_account, region: 'eu-west-2'}
             }))
         testingWave.addStage(new TestingStage(this, 'SmokeTestingStage',
             {
                 testType: TestType.SMOKE,
                 removalPolicy: props.removalPolicy,
-                env: {account: test_account, region: 'eu-central-1'}
             }))
 
     }
