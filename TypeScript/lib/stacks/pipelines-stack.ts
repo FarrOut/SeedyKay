@@ -94,7 +94,7 @@ export class PipelinesStack extends cdk.Stack {
             {
                 removalPolicy: props.removalPolicy,
             })).addPost(
-            new ShellStep('RunIntegrationTests', {
+            new CodeBuildStep('RunIntegrationTests', {
                 input: synthStep,
                 installCommands: [
                     'npm run install-all',
