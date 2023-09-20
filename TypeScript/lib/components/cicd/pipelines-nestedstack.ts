@@ -12,11 +12,27 @@ interface PipelinesProps extends cdk.StackProps {
     BranchName: string,
     Vpc?: ec2.IVpc,
     StackName: string,
+    LogGroup?: logs.ILogGroup,
+    removalPolicy?: cdk.RemovalPolicy,
 }
 
 export class PipelinesNestedStack extends cdk.NestedStack {
 
     public readonly pipeline: CodePipeline;
+
+    // rolePolicyStatements: [
+    //     new iam.PolicyStatement({
+    //         actions: ['sts:AssumeRole'],
+    //         resources: ['*'],
+    //         conditions: {
+    //             StringEquals: {
+    //                 'iam:ResourceTag/aws-cdk:bootstrap-role':
+    //                     `arn:aws:iam::${AWS::AccountId}:role/cdk-${Qualifier}-lookup-role-${AWS::AccountId}-${AWS::Region}`,
+    //             },
+    //         },
+    //     }),
+    // ],
+
 
     constructor(scope: Construct, id: string, props: PipelinesProps) {
         super(scope, id, props);
@@ -27,31 +43,18 @@ export class PipelinesNestedStack extends cdk.NestedStack {
             pipelineName: 'MyPipeline',
             selfMutation: true,
 
-            // rolePolicyStatements: [
-            //     new iam.PolicyStatement({
-            //         actions: ['sts:AssumeRole'],
-            //         resources: ['*'],
-            //         conditions: {
-            //             StringEquals: {
-            //                 'iam:ResourceTag/aws-cdk:bootstrap-role':
-            //                     `arn:aws:iam::${AWS::AccountId}:role/cdk-${Qualifier}-lookup-role-${AWS::AccountId}-${AWS::Region}`,
-            //             },
-            //         },
-            //     }),
-            // ],
-
             synth: new ShellStep('Synth', {
                 input: CodePipelineSource.gitHub(props.RepositoryOwner + '/' + props.RepositoryName, props.BranchName),
-                installCommands: [`cd ${SubDir}`, `pwd`, `ls -la`,
-                    'npm install -g aws-cdk', 'npm ci'
-                ],
+                // installCommands: [`cd ${SubDir}`, `pwd`, `ls -la`,
+                //     'npm install -g aws-cdk',
+                // ],
                 commands:
-                    [`npx cdk --version`, 'npm run build', `npx cdk synth ${props.StackName}`],
+                    ['npm ci', `npx cdk --version`, 'npm run build', `npx cdk synth ${props.StackName}`],
                 primaryOutputDirectory: `${SubDir}/cdk.out`,
             }),
             codeBuildDefaults: {
                 buildEnvironment: {
-                    privileged: true,
+                    // privileged: true,
                     // buildImage: codebuild.LinuxBuildImage.STANDARD_6_0,
                     // computeType: codebuild.ComputeType.MEDIUM,
                 },
@@ -66,7 +69,7 @@ export class PipelinesNestedStack extends cdk.NestedStack {
                 }),
                 logging: {
                     cloudWatch: {
-                        logGroup: new logs.LogGroup(this, `PipelinesLogGroup`),
+                        logGroup: props.LogGroup,
                     }
                 },
             },
