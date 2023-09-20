@@ -49,7 +49,10 @@ export class PipelinesNestedStack extends cdk.NestedStack {
                 //     'npm install -g aws-cdk',
                 // ],
                 commands:
-                    ['npm ci', `npx cdk --version`, 'npm run build', `npx cdk synth ${props.StackName}`],
+                    [`cd ${SubDir}`, `pwd`,
+                        'npm ci', `npx cdk --version`,
+                        'npm run build',
+                        `npx cdk synth ${props.StackName}`],
                 primaryOutputDirectory: `${SubDir}/cdk.out`,
             }),
             codeBuildDefaults: {
