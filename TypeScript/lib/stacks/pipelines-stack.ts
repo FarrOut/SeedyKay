@@ -87,6 +87,7 @@ export class PipelinesStack extends cdk.Stack {
             {
                 testType: TestType.INTEGRATION,
                 removalPolicy: props.removalPolicy,
+                env: {account: this.account, region: 'eu-west-2'}
             }))
 
 
