@@ -13,7 +13,7 @@ export class AlwaysUpdatingLambdaFunctionStack extends NestedStack {
 
     public readonly function: lambda_.IFunction;
 
-    constructor(scope: Construct, id: string, props?: MyProps) {
+    constructor(scope: Construct, id: string, props: MyProps) {
         super(scope, id, props);
 
         const lambdaRole = new iam.Role(this, 'Role', {
