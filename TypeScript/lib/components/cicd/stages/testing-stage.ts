@@ -6,15 +6,8 @@ import {LambdaStack} from "../../../stacks/lambda-stack";
 interface MyProps extends cdk.StageProps {
     LogGroup?: logs.ILogGroup,
     removalPolicy: cdk.RemovalPolicy,
-    testType: TestType,
 }
 
-export enum TestType {
-    INTEGRATION = 'Integration',
-    REGRESSION = 'Regression',
-    UNIT = 'Unit',
-    SMOKE = 'Smoke',
-}
 
 export class TestingStage extends cdk.Stage {
 
@@ -22,6 +15,7 @@ export class TestingStage extends cdk.Stage {
     constructor(scope: Construct, id: string, props: MyProps) {
         super(scope, id, props);
 
+        // TODO just a placeholder. this should do testing work.
         new LambdaStack(this, 'LambdaStack', {
             removalPolicy: props.removalPolicy,
         });
