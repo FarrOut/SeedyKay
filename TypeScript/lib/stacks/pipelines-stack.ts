@@ -97,11 +97,12 @@ export class PipelinesStack extends cdk.Stack {
             new CodeBuildStep('RunIntegrationTests', {
                 input: synthStep,
                 installCommands: [
+                    `cd ${props.SubDir}`, `pwd`,
                     'npm run install-all',
                     'sudo apt-get install jq'
                 ],
                 commands: [
-                    'echo "Let\'s run some tests!!"',
+                    'echo "Let\'s run some integration tests!!"',
                 ],
                 env: {},
                 primaryOutputDirectory: `${props.SubDir}/cdk.out`,
@@ -110,7 +111,20 @@ export class PipelinesStack extends cdk.Stack {
         testingWave.addStage(new MyApplicationStage(this, 'TestingStageBeta',
             {
                 removalPolicy: props.removalPolicy,
-            }))
+            })).addPost(
+            new CodeBuildStep('RunSmokeTests', {
+                input: synthStep,
+                installCommands: [
+                    `cd ${props.SubDir}`, `pwd`,
+                ],
+                commands: [
+                    'echo "Let\'s run some smoke tests!!"',
+                    'npx cdk ls',
+                ],
+                env: {},
+                primaryOutputDirectory: `${props.SubDir}/cdk.out`,
+            }),
+        )
         testingWave.addStage(new MyApplicationStage(this, 'TestingStageGamma',
             {
                 removalPolicy: props.removalPolicy,
