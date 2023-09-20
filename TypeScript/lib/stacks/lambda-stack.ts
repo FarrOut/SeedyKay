@@ -10,15 +10,19 @@ import {AlwaysUpdatingLambdaFunctionStack} from '../components/compute/lambda/al
 
 ===============================================================================*/
 
+interface MyProps extends cdk.StackProps {
+    removalPolicy: cdk.RemovalPolicy,
+}
+
 export class LambdaStack extends cdk.Stack {
 
     public readonly functionArn: string;
 
-    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    constructor(scope: Construct, id: string, props: MyProps) {
         super(scope, id, props);
 
         let LambdaStack = new AlwaysUpdatingLambdaFunctionStack(this, 'AlwaysUpdatingLambdaFunctionStack', {
-            removalPolicy: cdk.RemovalPolicy.DESTROY,
+            removalPolicy: props.removalPolicy,
         })
         this.functionArn = LambdaStack.function.functionArn;
         new cdk.CfnOutput(this, 'LambdaFunctionArn', {
