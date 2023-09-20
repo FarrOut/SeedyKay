@@ -3,7 +3,7 @@ import {Construct} from 'constructs';
 import {LogGroupNestedStack} from "../components/logging/log-group-nestedstack";
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import {CodePipeline, CodePipelineSource, ShellStep} from 'aws-cdk-lib/pipelines';
+import {CodePipeline, CodePipelineSource, ShellStep, ManualApprovalStep} from 'aws-cdk-lib/pipelines';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import {S3NestedStack} from "../components/storage/s3-nestedstack";
@@ -110,7 +110,7 @@ export class PipelinesStack extends cdk.Stack {
                 }),
             {
                 pre: [
-                    new pipelines.ManualApprovalStep('PromoteToProd'),
+                    new ManualApprovalStep('PromoteToProd'),
                 ],
             }
         )
