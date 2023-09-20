@@ -22,7 +22,7 @@ export class TestingStage extends cdk.Stage {
     constructor(scope: Construct, id: string, props: MyProps) {
         super(scope, id, props);
 
-        new LambdaStack(app, 'LambdaStack', {
+        new LambdaStack(this, 'LambdaStack', {
             removalPolicy: props.removalPolicy,
         });
 
