@@ -7,7 +7,7 @@ import {CodePipeline, CodePipelineSource, ShellStep, ManualApprovalStep} from 'a
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import {S3NestedStack} from "../components/storage/s3-nestedstack";
-import {TestingStage} from "../components/cicd/stages/testing-stage";
+import {MyApplicationStage} from "../components/cicd/stages/my-application-stage";
 import {ProductionStage} from "../components/cicd/stages/prod-stage";
 
 interface PipelinesProps extends cdk.StackProps {
@@ -84,15 +84,15 @@ export class PipelinesStack extends cdk.Stack {
          *
          */
         const testingWave = this.pipeline.addWave('Testing')
-        testingWave.addStage(new TestingStage(this, 'TestingStageAlpha',
+        testingWave.addStage(new MyApplicationStage(this, 'TestingStageAlpha',
             {
                 removalPolicy: props.removalPolicy,
             }))
-        testingWave.addStage(new TestingStage(this, 'TestingStageBeta',
+        testingWave.addStage(new MyApplicationStage(this, 'TestingStageBeta',
             {
                 removalPolicy: props.removalPolicy,
             }))
-        testingWave.addStage(new TestingStage(this, 'TestingStageGamma',
+        testingWave.addStage(new MyApplicationStage(this, 'TestingStageGamma',
             {
                 removalPolicy: props.removalPolicy,
             }))
@@ -104,13 +104,13 @@ export class PipelinesStack extends cdk.Stack {
          */
         const releaseWave = this.pipeline.addWave('Release')
         releaseWave.addStage(
-            new ProductionStage(this, 'ProductionStage',
+            new MyApplicationStage(this, 'ProductionStage',
                 {
                     removalPolicy: props.removalPolicy,
                 }),
             {
                 pre: [
-                    new ManualApprovalStep('PromoteToProd'),
+                    // new ManualApprovalStep('PromoteToProd'),
                 ],
             }
         )

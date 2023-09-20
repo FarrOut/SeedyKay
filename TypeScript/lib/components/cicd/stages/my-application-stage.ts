@@ -9,13 +9,12 @@ interface MyProps extends cdk.StageProps {
 }
 
 
-export class TestingStage extends cdk.Stage {
+export class MyApplicationStage extends cdk.Stage {
 
 
     constructor(scope: Construct, id: string, props: MyProps) {
         super(scope, id, props);
 
-        // TODO just a placeholder. this should do testing work.
         new LambdaStack(this, 'LambdaStack', {
             removalPolicy: props.removalPolicy,
         });
