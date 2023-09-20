@@ -27,6 +27,6 @@ export class TestingStage extends cdk.Stage {
                 removalPolicy: props.removalPolicy,
             })
 
-        cdk.CfnOutput(this, 'TestType', {value: props.testType, description: "Type of test this is."})
+        new cdk.CfnOutput(this, 'TestType', {value: props.testType, description: "Type of test this is."})
     }
 }
