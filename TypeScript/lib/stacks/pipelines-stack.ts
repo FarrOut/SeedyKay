@@ -107,7 +107,12 @@ export class PipelinesStack extends cdk.Stack {
             new ProductionStage(this, 'ProductionStage',
                 {
                     removalPolicy: props.removalPolicy,
-                })
+                }),
+            {
+                pre: [
+                    new pipelines.ManualApprovalStep('PromoteToProd'),
+                ],
+            }
         )
     }
 }
