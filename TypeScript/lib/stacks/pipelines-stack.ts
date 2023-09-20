@@ -3,7 +3,7 @@ import {Construct} from 'constructs';
 import {LogGroupNestedStack} from "../components/logging/log-group-nestedstack";
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import {CodePipeline, CodePipelineSource, ShellStep, ManualApprovalStep} from 'aws-cdk-lib/pipelines';
+import {CodePipeline, CodePipelineSource, ShellStep, CodeBuildStep, ManualApprovalStep} from 'aws-cdk-lib/pipelines';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import {S3NestedStack} from "../components/storage/s3-nestedstack";
@@ -87,7 +87,19 @@ export class PipelinesStack extends cdk.Stack {
         testingWave.addStage(new MyApplicationStage(this, 'TestingStageAlpha',
             {
                 removalPolicy: props.removalPolicy,
-            }))
+            })).addPost(
+            new CodeBuildStep('RunIntegrationTests', {
+                // input: synth,
+                installCommands: [
+                    'npm run install-all',
+                    'sudo apt-get install jq'
+                ],
+                commands: [
+                    'echo "Let\'s run some tests!!"',
+                ],
+                env: {},
+            }),
+        )
         testingWave.addStage(new MyApplicationStage(this, 'TestingStageBeta',
             {
                 removalPolicy: props.removalPolicy,
