@@ -12,7 +12,7 @@ interface PipelinesProps extends cdk.StackProps {
     BranchName: string,
     Vpc?: ec2.IVpc,
     LogGroup?: logs.ILogGroup,
-    removalPolicy?: cdk.RemovalPolicy,
+    removalPolicy: cdk.RemovalPolicy,
     SubDir?: string,
 }
 
@@ -23,7 +23,7 @@ export class PipelinesStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: PipelinesProps) {
         super(scope, id, props);
 
-        let MyLogGroup = new LogGroupNestedStack(this, 'LogGroupNestedStack',
+        props.LogGroup = new LogGroupNestedStack(this, 'LogGroupNestedStack',
             {removalPolicy: props.removalPolicy, retention: logs.RetentionDays.ONE_WEEK}).logGroup
 
         this.pipeline = new CodePipeline(this, 'Pipeline', {
