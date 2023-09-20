@@ -3,6 +3,7 @@ import {Construct} from 'constructs';
 import * as lambda_ from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as cdk from 'aws-cdk-lib';
 
 interface MyProps {
     LogGroup?: logs.ILogGroup,
