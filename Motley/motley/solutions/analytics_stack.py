@@ -1,14 +1,9 @@
 from aws_cdk import (
     # Duration,
-    Stack, aws_ec2 as ec2,
-    CfnOutput, RemovalPolicy,
+    Stack, RemovalPolicy,
 )
-from aws_cdk.aws_eks import EndpointAccess
-from aws_cdk.aws_iam import Role, ManagedPolicy, ServicePrincipal
 from constructs import Construct
-from motley.analytics.forecast_stack import ForecastStack
-
-from motley.components.orchestration.eks import Eks
+from motley.components.analytics.forecast_stack import ForecastStack
 
 
 class AnalyticsStack(Stack):
