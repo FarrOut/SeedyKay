@@ -31,5 +31,5 @@ class NetworkingStack(Stack):
                       description='The name of the web ACL.')
             web_acl_id = waf.attr_arn
 
-        cloudfront = CloudFrontNestedStack(self, "CloudFrontNestedStack", web_acl_id=web_acl_id,
-                                           removal_policy=removal_policy)
+            cloudfront = CloudFrontNestedStack(self, "CloudFrontNestedStack", web_acl_id=web_acl_id,
+                                            removal_policy=removal_policy)
