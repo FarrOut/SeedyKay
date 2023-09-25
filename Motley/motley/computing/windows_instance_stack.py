@@ -1,6 +1,8 @@
 from aws_cdk import (
     # Duration,
-    Stack,
+    CfnCondition,
+    Fn,
+    NestedStack,
     aws_ec2 as ec2,
     aws_s3 as s3,
     aws_iam as iam,
@@ -11,15 +13,15 @@ from aws_cdk import (
 from constructs import Construct
 
 
-class WindowsInstanceStack(Stack):
+class WindowsInstanceStack(NestedStack):
     def __init__(
         self,
         scope: Construct,
         construct_id: str,
-        vpc: ec2.Vpc,
-        whitelisted_peer: ec2.Peer,
+        vpc: ec2.IVpc,
+        whitelisted_peer: ec2.IPeer,
         key_name: str,
-        bucket: s3.Bucket,
+        bucket: s3.IBucket = None,
         **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -28,10 +30,20 @@ class WindowsInstanceStack(Stack):
             self,
             "ToggleParam",
             type="String",
-            default="default",
+            default="true",
         )
+        is_enabled = CfnCondition(self, "IsEnabled",
+                                  expression=Fn.condition_equals("true", toggle_param))
 
-        topic = sns.Topic(self, "OffTopic", topic_name=toggle_param.value_as_string)
+        topic = sns.Topic(self, "OffTopic")
+        cfn_topic = topic.node.default_child
+        cfn_topic.cfn_options.condition = is_enabled
+
+        user_data = ec2.UserData.for_windows()
+        user_data.add_commands(
+            f'$topic={Fn.condition_if(is_enabled.logical_id, topic.topic_name, "false").to_string()}',
+            # f'if [[ $topic != "false" ]]',
+        )
 
         #  TODO testing DELETE!!!!!
         # #######################################################
@@ -78,8 +90,6 @@ class WindowsInstanceStack(Stack):
             description="SecurityGroup acting as first-line of defence from the outside world.",
             value=outer_perimeter_security_group.security_group_id,
         )
-
-        user_data = ec2.UserData.for_windows()
 
         working_dir = "~/"
         instance_identifier = None
@@ -160,9 +170,10 @@ class WindowsInstanceStack(Stack):
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
         )
 
-        role = self.instance.role
-        bucket.grant_read_write(role)
-        bucket.grant_read_write(iam.AccountPrincipal(self.account))
+        if bucket is not None:
+            role = self.instance.role
+            bucket.grant_read_write(role)
+            bucket.grant_read_write(iam.AccountPrincipal(self.account))
 
         # Bootstrapping.get_windows_init(instance=instance, instance_role=instance.role, os_type=instance.os_type,
         #                                user_data=instance.user_data),
