@@ -2,9 +2,16 @@
 import os
 
 import boto3
-from aws_cdk import RemovalPolicy, App, Environment
-from aws_cdk.aws_secretsmanager import Secret
 
+from aws_cdk import (
+    # Duration,
+    aws_ec2 as ec2,
+    Stack, RemovalPolicy,
+    RemovalPolicy, App, Environment,
+)
+
+from motley.solutions.canary_stack import CanaryStack
+from motley.solutions.windows_stack import WindowsStack
 from motley.solutions.documentdb_stack import DocumentDbStack
 from motley.solutions.lambda_stack import LambdaStack
 
@@ -23,11 +30,15 @@ secretsmanager_ = boto3.client("secretsmanager")
 
 app = App()
 peers = app.node.try_get_context("peers")
+key_name = app.node.try_get_context("key_name")
 app_name = "motley"
 
-default_env = Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
-africa_env = Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region='af-south-1')
-euro_env = Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region='eu-central-1')
+default_env = Environment(account=os.getenv(
+    'CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
+africa_env = Environment(account=os.getenv(
+    'CDK_DEFAULT_ACCOUNT'), region='af-south-1')
+euro_env = Environment(account=os.getenv(
+    'CDK_DEFAULT_ACCOUNT'), region='eu-central-1')
 
 cross_account_a = app.node.try_get_context("cross_account_a")
 cross_account_b = app.node.try_get_context("cross_account_b")
@@ -35,22 +46,25 @@ cross_account_b = app.node.try_get_context("cross_account_b")
 ##############
 # STACKS #
 ##############
-
+enable_canary_stack = False
+enable_lambda_stack = False
+enable_eks_stack = False
+enable_windows_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
 # ), )
 
-# net = NetworkingStack(
-#     app,
-#     "NetworkingStack",
-#     waf=waf_stack.waf,
-#     removal_policy=RemovalPolicy.DESTROY,
-#     cross_region_references=True,
-#     env=Environment(
-#         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-#     ),
-# )
+net = NetworkingStack(
+    app,
+    "NetworkingStack",
+    # waf=waf_stack.waf,
+    removal_policy=RemovalPolicy.DESTROY,
+    cross_region_references=True,
+    env=Environment(
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+    ),
+)
 
 # analytics = AnalyticsStack(
 #     app,
@@ -74,12 +88,24 @@ cross_account_b = app.node.try_get_context("cross_account_b")
 #     env=default_env,
 # )
 
-lambda_ = LambdaStack(
-    app,
-    "LambdaStack",
-    removal_policy=RemovalPolicy.DESTROY,
-    env=default_env,
-)
+if enable_lambda_stack:
+    lambda_ = LambdaStack(
+        app,
+        "LambdaStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_windows_stack:
+    windows = WindowsStack(
+        app,
+        "WindowsStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        key_name=key_name,
+        vpc=net.vpc,
+        whitelisted_peer=ec2.Peer.prefix_list(peers),
+        env=default_env,
+    )
 
 # containers = ContainerStack(
 #     app,
@@ -92,16 +118,17 @@ lambda_ = LambdaStack(
 #     cross_region_references=True,
 # )
 
-eks = EksStack(
-    app,
-    "EksStack",
-    # vpc=net.vpc,
-    eks_version='1.24',
-    removal_policy=RemovalPolicy.DESTROY,
-    env=Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-    ),
-)
+if enable_eks_stack:
+    eks = EksStack(
+        app,
+        "EksStack",
+        # vpc=net.vpc,
+        eks_version='1.24',
+        removal_policy=RemovalPolicy.DESTROY,
+        env=Environment(
+            account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+        ),
+    )
 
 # ml = MachineLearningStack(
 #     app,
@@ -127,12 +154,21 @@ eks = EksStack(
 #     env=default_env,
 # )
 
-docdb = DocumentDbStack(
-    app,
-    "DocumentDbStack",
-    env=Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-    ),
-)
+# docdb = DocumentDbStack(
+#     app,
+#     "DocumentDbStack",
+#     env=Environment(
+#         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+#     ),
+# )
+
+if enable_canary_stack:
+    canary = CanaryStack(
+        app,
+        "CanaryStack",
+        env=Environment(
+            account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+        ),
+    )
 
 app.synth()
