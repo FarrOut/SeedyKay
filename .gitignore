@@ -1,6 +1,8 @@
 *cdk.context.json
 */node_modules/*
 
+.vscode/
+
 *.iml
 .idea/
 */.idea/
