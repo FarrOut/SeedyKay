@@ -1,5 +1,15 @@
 {
   "profile": "default",
+  "requireApproval": "never",
+  "pathMetadata": false,
+  "assetMetadata": false,
+  "rollback": true,
+  "tags": [
+    {
+      "Key": "BelongsTo",
+      "Value": "SeedyKay"
+    }
+  ],
   "app": "python3 app.py",
   "watch": {
     "include": [
