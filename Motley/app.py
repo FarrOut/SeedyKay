@@ -9,6 +9,7 @@ from aws_cdk import (
     Stack, RemovalPolicy,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.batch_stack import BatchStack
 
 from motley.solutions.canary_stack import CanaryStack
 from motley.solutions.windows_stack import WindowsStack
@@ -49,7 +50,8 @@ cross_account_b = app.node.try_get_context("cross_account_b")
 enable_canary_stack = False
 enable_lambda_stack = False
 enable_eks_stack = False
-enable_windows_stack = True
+enable_windows_stack = False
+enable_batch_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -129,6 +131,17 @@ if enable_eks_stack:
             account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
         ),
     )
+
+
+if enable_batch_stack:
+    batch = BatchStack(
+        app,
+        "BatchStack",        
+        removal_policy=RemovalPolicy.DESTROY,
+        env=Environment(
+            account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+        ),
+    )    
 
 # ml = MachineLearningStack(
 #     app,
