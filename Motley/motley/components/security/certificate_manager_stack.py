@@ -1,12 +1,12 @@
 from aws_cdk import (
     # Duration,
-    Stack, RemovalPolicy, CfnOutput,
+    NestedStack, RemovalPolicy, CfnOutput,
 )
 from aws_cdk.aws_acmpca import CfnCertificateAuthority, CfnCertificate
 from constructs import Construct
 
 
-class AcmStack(Stack):
+class AcmStack(NestedStack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)

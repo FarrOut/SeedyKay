@@ -2,31 +2,20 @@
 import os
 
 import boto3
-
 from aws_cdk import (
     # Duration,
     aws_ec2 as ec2,
-    Stack, RemovalPolicy,
     RemovalPolicy, App, Environment,
 )
-from motley.solutions.inspector_stack import InspectorStack
+
 from motley.solutions.batch_stack import BatchStack
-
 from motley.solutions.canary_stack import CanaryStack
-from motley.solutions.windows_stack import WindowsStack
-from motley.solutions.documentdb_stack import DocumentDbStack
-from motley.solutions.lambda_stack import LambdaStack
-
-from motley.components.security.waf_cloudfront_stack import WafCloudFrontStack
-from motley.solutions.autoscaling_stack import AutoscalingStack
-from motley.solutions.machine_learning_stack import MachineLearningStack
-from motley.solutions.networking_stack import NetworkingStack
-from motley.solutions.analytics_stack import AnalyticsStack
-from motley.solutions.container_stack import ContainerStack
-from motley.solutions.events_stack import EventsStack
-
+from motley.solutions.certificate_manager_stack import CertificateManagerStack
 from motley.solutions.eks_stack import EksStack
-from motley.solutions.security_stack import SecurityStack
+from motley.solutions.inspector_stack import InspectorStack
+from motley.solutions.lambda_stack import LambdaStack
+from motley.solutions.networking_stack import NetworkingStack
+from motley.solutions.windows_stack import WindowsStack
 
 secretsmanager_ = boto3.client("secretsmanager")
 
@@ -57,6 +46,7 @@ enable_inspector_stack = True
 enable_documentdb_stack = False
 enable_autoscaling_stack = False
 enable_machine_learning_stack = False
+enable_acm_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -99,6 +89,14 @@ if enable_lambda_stack:
     lambda_ = LambdaStack(
         app,
         "LambdaStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_acm_stack:
+    acm = CertificateManagerStack(
+        app,
+        "CertificateManagerStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
