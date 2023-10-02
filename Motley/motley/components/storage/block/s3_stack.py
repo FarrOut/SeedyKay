@@ -1,13 +1,16 @@
 from aws_cdk import (
     # Duration,
     aws_s3 as s3,
-    Stack, RemovalPolicy, CfnOutput, )
+    NestedStack, RemovalPolicy, CfnOutput, )
 from constructs import Construct
 
 
-class S3Stack(Stack):
+class S3NestedStack(NestedStack):
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str,
+                 removal_policy: RemovalPolicy = RemovalPolicy.RETAIN,
+                 auto_delete_objects: bool = False,
+                 **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         self.bucket = s3.Bucket(self, "TheresAHoleInMyBucket",
@@ -15,8 +18,8 @@ class S3Stack(Stack):
                                 encryption=s3.BucketEncryption.S3_MANAGED,
                                 enforce_ssl=True,
                                 versioned=True,
-                                auto_delete_objects=True,
-                                removal_policy=RemovalPolicy.DESTROY,
+                                auto_delete_objects=auto_delete_objects,
+                                removal_policy=removal_policy,
                                 )
 
         CfnOutput(self, 'BucketArn',

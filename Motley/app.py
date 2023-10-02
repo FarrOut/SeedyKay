@@ -9,6 +9,7 @@ from aws_cdk import (
     Stack, RemovalPolicy,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.inspector_stack import InspectorStack
 from motley.solutions.batch_stack import BatchStack
 
 from motley.solutions.canary_stack import CanaryStack
@@ -51,7 +52,11 @@ enable_canary_stack = False
 enable_lambda_stack = False
 enable_eks_stack = False
 enable_windows_stack = False
-enable_batch_stack = True
+enable_batch_stack = False
+enable_inspector_stack = True
+enable_documentdb_stack = False
+enable_autoscaling_stack = False
+enable_machine_learning_stack = False
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -97,6 +102,14 @@ if enable_lambda_stack:
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
+
+if enable_inspector_stack:
+    inspector = InspectorStack(
+        app,
+        "InspectorStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )    
 
 if enable_windows_stack:
     windows = WindowsStack(
