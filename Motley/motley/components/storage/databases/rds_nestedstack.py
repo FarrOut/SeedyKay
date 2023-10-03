@@ -1,13 +1,17 @@
 from aws_cdk import (
-    # Duration,
-    Stack, aws_ec2 as ec2, aws_rds as rds, RemovalPolicy, CfnOutput, )
+    NestedStack, aws_ec2 as ec2, aws_rds as rds, RemovalPolicy, CfnOutput, )
 from aws_cdk.aws_rds import CfnDBInstance
 from constructs import Construct
 
 
-class RdsStack(Stack):
+class RdsNestedStack(NestedStack):
 
-    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc,
+                 instance_type: ec2.InstanceType = ec2.InstanceType.of(ec2.InstanceClass.R5,
+                                                                          ec2.InstanceSize.LARGE),
+                                                                          removal_policy: RemovalPolicy = RemovalPolicy.RETAIN,
+                                                                          cluster_identifier: str = None,
+                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         parameter_group = rds.ParameterGroup(self, "ParameterGroup",
@@ -33,20 +37,39 @@ class RdsStack(Stack):
         #                 ]
         #                 )
 
+        cluster = rds.DatabaseCluster(self, "Database",
+                                      cluster_identifier=cluster_identifier,
+                                      engine=rds.DatabaseClusterEngine.aurora_postgres(
+                                          version=rds.AuroraPostgresEngineVersion.VER_15_2),
+                                      credentials=rds.Credentials.from_generated_secret(
+                                            "syscdk"),
+                                      instance_props=rds.InstanceProps(
+                                          instance_type=instance_type,
+                                          vpc_subnets=ec2.SubnetSelection(
+                                              subnet_type=ec2.SubnetType.PUBLIC),
+                                          vpc=vpc
+                                      ),
+                                      storage_type=rds.DBClusterStorageType.AURORA_IOPT1,
+                                      removal_policy=removal_policy,
+                                      )
+        
+        CfnOutput(self, 'DbClusterIdentifier',  value=cluster.cluster_identifier,description='The cluster identifier.')        
+
         instance = rds.DatabaseInstance(self, "Instance",
                                         engine=rds.DatabaseInstanceEngine.postgres(
                                             version=rds.PostgresEngineVersion.VER_15_3),
                                         # optional, defaults to m5.large
-                                        instance_type=ec2.InstanceType.of(ec2.InstanceClass.R5,
-                                                                          ec2.InstanceSize.LARGE),
-                                        credentials=rds.Credentials.from_generated_secret("syscdk"),
+                                        instance_type=instance_type,
+                                        credentials=rds.Credentials.from_generated_secret(
+                                            "syscdk"),
                                         # Optional - will default to 'admin' username and generated password
                                         vpc=vpc,
                                         vpc_subnets=ec2.SubnetSelection(
                                             subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT
                                         ),
                                         parameter_group=parameter_group,
-                                        removal_policy=RemovalPolicy.DESTROY,
+                                        removal_policy=removal_policy,
+                                        delete_automated_backups=(removal_policy == RemovalPolicy.DESTROY),
                                         )
 
         CfnOutput(self, 'DbInstanceIdentifier',

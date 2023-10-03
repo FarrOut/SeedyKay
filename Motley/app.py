@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.rds_stack import RdsStack
 
 from motley.solutions.batch_stack import BatchStack
 from motley.solutions.canary_stack import CanaryStack
@@ -46,7 +47,8 @@ enable_inspector_stack = True
 enable_documentdb_stack = False
 enable_autoscaling_stack = False
 enable_machine_learning_stack = False
-enable_acm_stack = True
+enable_acm_stack = False
+enable_rds_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -58,9 +60,7 @@ net = NetworkingStack(
     # waf=waf_stack.waf,
     removal_policy=RemovalPolicy.DESTROY,
     cross_region_references=True,
-    env=Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-    ),
+    env=default_env,
 )
 
 # analytics = AnalyticsStack(
@@ -89,6 +89,15 @@ if enable_lambda_stack:
     lambda_ = LambdaStack(
         app,
         "LambdaStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_rds_stack:
+    rds = RdsStack(
+        app,
+        "RdsStack",
+        vpc=net.vpc,
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
