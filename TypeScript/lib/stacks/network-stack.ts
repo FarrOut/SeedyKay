@@ -10,7 +10,7 @@ import {Construct} from 'constructs';
 
 ===============================================================================*/
 
-export class NetworkStack extends cdk.Stack {
+export class NetworkingStack extends cdk.Stack {
 
     public readonly VpcId: string;
 

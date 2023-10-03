@@ -1,5 +1,21 @@
 {
+  "CdkVPCCidr": "",
+  "CdkAZWorkerNodes": [
+    "eu-west-1a",
+    "eu-west-1b",
+    "eu-west-1c"
+  ],
   "profile": "default",
+  "requireApproval": "never",
+  "pathMetadata": false,
+  "assetMetadata": false,
+  "rollback": true,
+  "tags": [
+    {
+      "Key": "BelongsTo",
+      "Value": "SeedyKay"
+    }
+  ],
   "app": "npx ts-node --prefer-ts-exts bin/type_script.ts",
   "watch": {
     "include": [
