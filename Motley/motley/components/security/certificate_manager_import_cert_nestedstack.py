@@ -15,25 +15,25 @@ class CertificateManagerImportCertNestedStack(NestedStack):
 
 
 
-        self.cert = CfnCertificate(self, "MyCfnCertificate",
-                                   certificate_authority_arn=self.ca.attr_arn,
-                                   certificate_signing_request=self.ca.attr_certificate_signing_request,
-                                   signing_algorithm=self.ca.signing_algorithm,
-                                   validity=CfnCertificate.ValidityProperty(
-                                       type="MONTHS",
-                                       value=3
-                                   )
-                                   )
+        # self.cert = CfnCertificate(self, "MyCfnCertificate",
+        #                            certificate_authority_arn=self.ca.attr_arn,
+        #                            certificate_signing_request=self.ca.attr_certificate_signing_request,
+        #                            signing_algorithm=self.ca.signing_algorithm,
+        #                            validity=CfnCertificate.ValidityProperty(
+        #                                type="MONTHS",
+        #                                value=3
+        #                            )
+        #                            )
 
-        self.cert.apply_removal_policy(RemovalPolicy.DESTROY)
+        # self.cert.apply_removal_policy(RemovalPolicy.DESTROY)
 
-        CfnOutput(self, 'CertificateArn',
-                  description='The Amazon Resource Name (ARN) for the certificate.',
-                  value=self.cert.attr_arn,
-                  )
+        # CfnOutput(self, 'CertificateArn',
+        #           description='The Amazon Resource Name (ARN) for the certificate.',
+        #           value=self.cert.attr_arn,
+        #           )
 
-        CfnOutput(self, 'CertificateAuthorityArn',
-                  description='The Amazon Resource Name (ARN) for the certificate authority that issued the '
-                              'certificate.',
-                  value=self.cert.attr_certificate_authority_arn,
-                  )
+        # CfnOutput(self, 'CertificateAuthorityArn',
+        #           description='The Amazon Resource Name (ARN) for the certificate authority that issued the '
+        #                       'certificate.',
+        #           value=self.cert.attr_certificate_authority_arn,
+        #           )
