@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.efs_stack import EfsStack
 from motley.solutions.rds_stack import RdsStack
 
 from motley.solutions.batch_stack import BatchStack
@@ -31,6 +32,8 @@ africa_env = Environment(account=os.getenv(
     'CDK_DEFAULT_ACCOUNT'), region='af-south-1')
 euro_env = Environment(account=os.getenv(
     'CDK_DEFAULT_ACCOUNT'), region='eu-central-1')
+alt_env = Environment(account=os.getenv(
+    'CDK_DEFAULT_ACCOUNT'), region='us-east-1')
 
 cross_account_a = app.node.try_get_context("cross_account_a")
 cross_account_b = app.node.try_get_context("cross_account_b")
@@ -43,12 +46,13 @@ enable_lambda_stack = False
 enable_eks_stack = False
 enable_windows_stack = False
 enable_batch_stack = False
-enable_inspector_stack = True
+enable_inspector_stack = False
 enable_documentdb_stack = False
 enable_autoscaling_stack = False
 enable_machine_learning_stack = False
 enable_acm_stack = False
-enable_rds_stack = True
+enable_rds_stack = False
+enable_efs_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -93,6 +97,15 @@ if enable_lambda_stack:
         env=default_env,
     )
 
+if enable_efs_stack:
+    efs = EfsStack(
+        app,
+        "EfsStack",
+        vpc=net.vpc,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
 if enable_rds_stack:
     rds = RdsStack(
         app,
@@ -116,7 +129,7 @@ if enable_inspector_stack:
         "InspectorStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
-    )    
+    )
 
 if enable_windows_stack:
     windows = WindowsStack(
@@ -156,12 +169,12 @@ if enable_eks_stack:
 if enable_batch_stack:
     batch = BatchStack(
         app,
-        "BatchStack",        
+        "BatchStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=Environment(
             account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
         ),
-    )    
+    )
 
 # ml = MachineLearningStack(
 #     app,
