@@ -5,6 +5,7 @@ from aws_cdk import (
 )
 from aws_cdk.aws_ecs import ContainerImage
 from constructs import Construct
+from motley.components.events.event_bridge_nestedstack import EventBridgeNestedStack
 
 from motley.components.events.alarms_nestedstack import AlarmsNestedStack
 
@@ -16,4 +17,7 @@ class EventsStack(Stack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        self.alarms = AlarmsNestedStack(self, "AlarmsNestedStack", removal_policy=removal_policy)
+        # self.alarms = AlarmsNestedStack(self, "AlarmsNestedStack", removal_policy=removal_policy)
+
+        self.events = EventBridgeNestedStack(self, "EventBridgeNestedStack", removal_policy=removal_policy,                                             
+                                             )

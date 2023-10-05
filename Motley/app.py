@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.events_stack import EventsStack
 from motley.solutions.efs_stack import EfsStack
 from motley.solutions.rds_stack import RdsStack
 
@@ -52,7 +53,9 @@ enable_autoscaling_stack = False
 enable_machine_learning_stack = False
 enable_acm_stack = False
 enable_rds_stack = False
-enable_efs_stack = True
+enable_efs_stack = False
+enable_events_stack = True
+
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -82,12 +85,13 @@ net = NetworkingStack(
 #     env=euro_env,
 # )
 
-# events = EventsStack(
-#     app,
-#     "EventsStack",
-#     removal_policy=RemovalPolicy.DESTROY,
-#     env=default_env,
-# )
+if enable_events_stack:
+    events = EventsStack(
+        app,
+        "EventsStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
 
 if enable_lambda_stack:
     lambda_ = LambdaStack(
