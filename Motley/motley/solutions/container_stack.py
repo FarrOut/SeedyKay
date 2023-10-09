@@ -1,6 +1,6 @@
 from aws_cdk import (
     # Duration,
-    Stack, aws_ec2 as ec2,
+    NestedStack, aws_ec2 as ec2,
     RemovalPolicy,
 )
 from aws_cdk.aws_secretsmanager import ISecret, Secret
@@ -11,7 +11,7 @@ from motley.components.containerization.ecs_nestedstack import EcsNestedStack
 from motley.components.networking.vpc_stack import VpcNestedStack
 
 
-class ContainerStack(Stack):
+class ContainerStack(NestedStack):
 
     def __init__(self, scope: Construct, construct_id: str, image_name: str, vpc: ec2.Vpc = None,
                  # secret: ISecret = None,

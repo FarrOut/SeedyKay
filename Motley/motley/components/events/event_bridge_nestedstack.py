@@ -1,7 +1,8 @@
-from aws_cdk import (
-    Duration,
-    NestedStack, aws_cloudwatch as cloudwatch, aws_events as events, aws_events_targets as targets, aws_iam as iam,
-    RemovalPolicy, CfnOutput, Tags, )
+from aws_cdk import CfnOutput, Duration, NestedStack, RemovalPolicy, Tags
+from aws_cdk import aws_cloudwatch as cloudwatch
+from aws_cdk import aws_events as events
+from aws_cdk import aws_events_targets as targets
+from aws_cdk import aws_iam as iam
 from constructs import Construct
 
 

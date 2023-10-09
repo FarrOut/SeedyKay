@@ -6,7 +6,7 @@ from aws_cdk import (
 from constructs import Construct
 
 from motley.CICD.codedeploy_stack import CodeDeployStack
-from motley.components.networking.application_load_balancer_stack import LoadBalancerStack
+from Motley.motley.components.networking.application_load_balancer_nestedstack import LoadBalancerStack
 from motley.computing.autoscaling_nestedstack import AutoScalingNestedStack
 
 

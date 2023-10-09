@@ -7,6 +7,9 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+
+from motley.solutions.multi_target_alb_stack import MultiTargetAlbStack
+from motley.solutions.ssm_stack import SsmStack
 from motley.solutions.events_stack import EventsStack
 from motley.solutions.efs_stack import EfsStack
 from motley.solutions.rds_stack import RdsStack
@@ -54,8 +57,9 @@ enable_machine_learning_stack = False
 enable_acm_stack = False
 enable_rds_stack = False
 enable_efs_stack = False
-enable_events_stack = True
-
+enable_events_stack = False
+enable_ssm_stack = False
+enable_multi_target_alb_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -101,10 +105,27 @@ if enable_lambda_stack:
         env=default_env,
     )
 
+if enable_ssm_stack:
+    ssm = SsmStack(
+        app,
+        "SsmStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )    
+
 if enable_efs_stack:
     efs = EfsStack(
         app,
         "EfsStack",
+        vpc=net.vpc,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_multi_target_alb_stack:
+    MultiTargetAlbStack(
+        app,
+        "MultiTargetAlbStack",
         vpc=net.vpc,
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,

@@ -20,7 +20,12 @@ class EcsNestedStack(NestedStack):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        cluster = ecs.Cluster(self, "Cluster", vpc=vpc)
+        self.cluster = ecs.Cluster(self, "Cluster", vpc=vpc)
+
+        CfnOutput(self, 'ClusterArn', value=self.cluster.cluster_arn,
+                  description='The Amazon Resource Name (ARN) that identifies the cluster.')
+        CfnOutput(self, 'ClusterName', value=self.cluster.cluster_name,
+                  description='The name of the cluster.')
 
         file_system = efs.FileSystem(
             self,
