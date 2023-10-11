@@ -7,6 +7,8 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.cloudwatch_stack import CloudWatchStack
+from motley.solutions.apigateway_stack import ApiGatewayStack
 
 from motley.solutions.multi_target_alb_stack import MultiTargetAlbStack
 from motley.solutions.ssm_stack import SsmStack
@@ -59,7 +61,9 @@ enable_rds_stack = False
 enable_efs_stack = False
 enable_events_stack = False
 enable_ssm_stack = False
-enable_multi_target_alb_stack = True
+enable_multi_target_alb_stack = False
+enable_apigateway_stack = False
+enable_cloudwatch_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -88,6 +92,23 @@ net = NetworkingStack(
 #     removal_policy=RemovalPolicy.DESTROY,
 #     env=euro_env,
 # )
+
+if enable_apigateway_stack:
+    api_gw = ApiGatewayStack(
+        app,
+        "ApiGatewayStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_cloudwatch_stack:
+    cw = CloudWatchStack(
+        app,
+        "CloudWatchStack",
+        vpc=net.vpc,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
 
 if enable_events_stack:
     events = EventsStack(

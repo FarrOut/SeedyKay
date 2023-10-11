@@ -63,11 +63,11 @@ class LambdaNestedStack(NestedStack):
                                                   ))
         access_point.apply_removal_policy(removal_policy)
 
-        fn = lambda_.Function(self, "lambda_function",
+        self.function = lambda_.Function(self, "lambda_function",
                               runtime=Runtime.PYTHON_3_9,
                               handler="script.main",
                               role=role,
                               vpc=vpc,
                               filesystem=lambda_.FileSystem.from_efs_access_point(access_point, "/mnt/msg"),
                               code=Code.from_asset("./assets/handlers"))
-        fn.apply_removal_policy(removal_policy)
+        self.function.apply_removal_policy(removal_policy)
