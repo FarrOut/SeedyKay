@@ -44,3 +44,4 @@ class MultiTargetAlbStack(Stack):
                                                                                          load_balancer=load_balancer,
                                                                                          task_definition=task_definition,
                                                                                          )
+                                                                          

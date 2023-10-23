@@ -33,3 +33,5 @@ class ApplicationLoadBalancedFargateServiceNestedStack(NestedStack):
                   description='The Amazon Resource Name (ARN) that identifies the cluster.')
         CfnOutput(self, 'ClusterName', value=self.service.cluster.cluster_name,
                   description='The name of the cluster.')
+        CfnOutput(self, 'TargetGroup', value=self.service.target_group.target_group_arn,
+                  description='The ARN of the target group.')        

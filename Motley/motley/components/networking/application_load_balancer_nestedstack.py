@@ -17,6 +17,8 @@ class LoadBalancerNestedStack(NestedStack):
         self.alb = elbv2.ApplicationLoadBalancer(self, "LB",
                                                  vpc=vpc,
                                                  internet_facing=internet_facing,
+                                                 deletion_protection=((removal_policy == RemovalPolicy.RETAIN) or (
+                                                     removal_policy == RemovalPolicy.SNAPSHOT)),
                                                  )
         self.alb.apply_removal_policy(removal_policy)
 
