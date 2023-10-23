@@ -21,7 +21,7 @@ class CloudWatchDashboardNestedStack(NestedStack):
         CfnOutput(self, "DashboardName", value=dashboard.dashboard_name,
                   description='The name of this dashboard.')
 
-        dashboard.add_widgets(cloudwatch.GaugeWidget(
+        gauge_widget = dashboard.add_widgets(cloudwatch.GaugeWidget(
             title="My gauge widget",
             metrics=[cloudwatch.Metric(
                 metric_name='TunnelState',
@@ -46,3 +46,5 @@ class CloudWatchDashboardNestedStack(NestedStack):
             width=6,
             height=6,
         ))
+
+        
