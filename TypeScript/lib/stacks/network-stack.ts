@@ -1,7 +1,7 @@
 import {VpcNestedStack} from '../components/networking/vpc-nestedstack';
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
-
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 /* ===============================================================================
 // === References ===
 // [1] - SubnetFilter.byIds
@@ -12,14 +12,13 @@ import {Construct} from 'constructs';
 
 export class NetworkingStack extends cdk.Stack {
 
-    public readonly VpcId: string;
+    public readonly Vpc: ec2.IVpc;
 
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        let Vpc = new VpcNestedStack(this, 'VpcNestedStack',)
+        this.Vpc = new VpcNestedStack(this, 'VpcNestedStack',).vpc
 
-        this.VpcId = Vpc.vpc.vpcId
 
 
     }
