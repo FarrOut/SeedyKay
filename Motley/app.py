@@ -7,6 +7,9 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.alb_fargate_service_stack import AlbFargateServiceStack
+from motley.solutions.stacksets_stack import StackSetsStack
+from motley.solutions.s3_stack import S3Stack
 from motley.solutions.cloudwatch_stack import CloudWatchStack
 from motley.solutions.apigateway_stack import ApiGatewayStack
 
@@ -47,6 +50,7 @@ cross_account_b = app.node.try_get_context("cross_account_b")
 ##############
 # STACKS #
 ##############
+enable_ecs_pattern_stack = True
 enable_canary_stack = False
 enable_lambda_stack = False
 enable_eks_stack = False
@@ -63,7 +67,9 @@ enable_events_stack = False
 enable_ssm_stack = False
 enable_multi_target_alb_stack = False
 enable_apigateway_stack = False
-enable_cloudwatch_stack = True
+enable_cloudwatch_stack = False
+enable_s3_stack = True
+enable_stacksets_stack = False
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -71,7 +77,7 @@ enable_cloudwatch_stack = True
 
 net = NetworkingStack(
     app,
-    "NetworkingStack",
+    "CdkPythonNetworkingStack",
     # waf=waf_stack.waf,
     removal_policy=RemovalPolicy.DESTROY,
     cross_region_references=True,
@@ -93,10 +99,37 @@ net = NetworkingStack(
 #     env=euro_env,
 # )
 
+if enable_stacksets_stack:
+    StackSetsStack(
+        app,
+        "StackSetsStack",
+        deployment_ou_id=app.node.try_get_context("deployment_ou_id"),
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
 if enable_apigateway_stack:
     api_gw = ApiGatewayStack(
         app,
         "ApiGatewayStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_ecs_pattern_stack:
+    AlbFargateServiceStack(
+        app,
+        "AlbFargateServiceStack",
+        # vpc=net.vpc,
+        vpc_id='vpc-08ec4c9b2b7d0fcb0',
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_s3_stack:
+    s3 = S3Stack(
+        app,
+        "S3Stack",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
@@ -132,7 +165,7 @@ if enable_ssm_stack:
         "SsmStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
-    )    
+    )
 
 if enable_efs_stack:
     efs = EfsStack(
