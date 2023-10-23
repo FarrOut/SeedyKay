@@ -8,10 +8,10 @@ class RdsNestedStack(NestedStack):
 
     def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc,
                  instance_type: ec2.InstanceType = ec2.InstanceType.of(ec2.InstanceClass.R5,
-                                                                          ec2.InstanceSize.LARGE),
-                                                                          removal_policy: RemovalPolicy = RemovalPolicy.RETAIN,
-                                                                          cluster_identifier: str = None,
-                  **kwargs) -> None:
+                                                                       ec2.InstanceSize.LARGE),
+                 removal_policy: RemovalPolicy = RemovalPolicy.RETAIN,
+                 cluster_identifier: str = None,
+                 **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         parameter_group = rds.ParameterGroup(self, "ParameterGroup",
@@ -42,7 +42,7 @@ class RdsNestedStack(NestedStack):
                                       engine=rds.DatabaseClusterEngine.aurora_postgres(
                                           version=rds.AuroraPostgresEngineVersion.VER_15_2),
                                       credentials=rds.Credentials.from_generated_secret(
-                                            "syscdk"),
+                                          "syscdk"),
                                       instance_props=rds.InstanceProps(
                                           instance_type=instance_type,
                                           vpc_subnets=ec2.SubnetSelection(
@@ -52,8 +52,9 @@ class RdsNestedStack(NestedStack):
                                       storage_type=rds.DBClusterStorageType.AURORA_IOPT1,
                                       removal_policy=removal_policy,
                                       )
-        
-        CfnOutput(self, 'DbClusterIdentifier',  value=cluster.cluster_identifier,description='The cluster identifier.')        
+
+        CfnOutput(self, 'DbClusterIdentifier',  value=cluster.cluster_identifier,
+                  description='The cluster identifier.')
 
         instance = rds.DatabaseInstance(self, "Instance",
                                         engine=rds.DatabaseInstanceEngine.postgres(
@@ -69,7 +70,8 @@ class RdsNestedStack(NestedStack):
                                         ),
                                         parameter_group=parameter_group,
                                         removal_policy=removal_policy,
-                                        delete_automated_backups=(removal_policy == RemovalPolicy.DESTROY),
+                                        delete_automated_backups=(
+                                            removal_policy == RemovalPolicy.DESTROY),
                                         )
 
         CfnOutput(self, 'DbInstanceIdentifier',
@@ -104,3 +106,9 @@ class RdsNestedStack(NestedStack):
                                        # ca_certificate_identifier="rds-ca-rsa2048-g1",
                                        # certificate_rotation_restart=False,
                                        )
+
+        proxy = rds.DatabaseProxy(self, "Proxy",
+            proxy_target=rds.ProxyTarget.from_cluster(cluster),
+            secrets=[cluster.secret],
+            vpc=vpc
+        )
