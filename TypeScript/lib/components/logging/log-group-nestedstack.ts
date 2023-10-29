@@ -1,10 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
-import {Construct} from 'constructs';
+import { Construct } from 'constructs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 
 interface MyStackProps extends cdk.StackProps {
     removalPolicy: cdk.RemovalPolicy,
     retention: logs.RetentionDays,
+    logGroupName?: string,
 }
 
 export class LogGroupNestedStack extends cdk.NestedStack {
@@ -14,9 +15,10 @@ export class LogGroupNestedStack extends cdk.NestedStack {
     constructor(scope: Construct, id: string, props?: MyStackProps) {
         super(scope, id, props);
 
-        this.logGroup = new logs.LogGroup(this, `PipelinesLogGroup`, {
+        this.logGroup = new logs.LogGroup(this, `${id}LogGroup`, {
             retention: props?.retention,
             removalPolicy: props?.removalPolicy,
+            logGroupName: props?.logGroupName,
         })
 
         new cdk.CfnOutput(this, 'LogGroupArn', {

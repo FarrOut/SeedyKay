@@ -11,7 +11,11 @@ import { ClusterProvider } from "../lib/blueprints/eks/cluster-provider";
 import { networkOverlayAddOns, networkVPCProvider } from "../lib/blueprints/eks/vpc-provider";
 import { NetworkingStack } from "../lib/stacks/network-stack";
 import { AlbStack } from '../lib/stacks/alb-stack';
+import { AutoscalingStack } from '../lib/stacks/autoscaling-stack';
 import {InstanceStack} from "../lib/stacks/instance-stack";
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { LoggingStack } from '../lib/stacks/logging-stack';
+import { IoTStack } from '../lib/stacks/iot-stack';
 
 const app = new cdk.App();
 
@@ -21,6 +25,7 @@ const default_env = {
 }
 
 
+let enableAutoscalingStack = false
 let enableLambdaStack = false
 let enableEksStack = false
 let enableBluePrintStack = false
@@ -28,14 +33,25 @@ let enableSecurityStack = false
 let enablePipelineStack = false
 let enableLoadBalancingStack = false
 let enableInstanceStack = false
-let enableEventsStack = true
+let enableEventsStack = false
+let enableLoggingStack = true
+let enableIoTStack = false
+
 
 const net = new NetworkingStack(app, 'CdkTypeScriptNetworkingStack', {
     env: default_env,
 });
 
-if (enableInstanceStack) {
-    new InstanceStack(app, 'InstanceStack', {
+// if (enableInstanceStack) {
+//     new InstanceStack(app, 'InstanceStack', {
+//         env: default_env,
+//         vpc: net.Vpc,
+//         removalPolicy: cdk.RemovalPolicy.DESTROY,
+//     });
+// }
+
+if (enableAutoscalingStack) {
+    new AutoscalingStack(app, 'AutoscalingStack', {
         env: default_env,
         vpc: net.Vpc,
         removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -48,6 +64,21 @@ if (enableLambdaStack) {
         removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 }
+
+if (enableIoTStack) {
+    new IoTStack(app, 'IoTStack', {
+        env: default_env,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+}
+
+// if (enableLoggingStack) {
+//     new LoggingStack(app, 'LoggingStack', {
+//         env: default_env,
+//         removalPolicy: cdk.RemovalPolicy.DESTROY,
+//         retention:logs.RetentionDays.ONE_MONTH,
+//     });
+// }
 
 if (enableEventsStack) {
     new EventsStack(app, 'EventsStack', {
@@ -88,14 +119,14 @@ if (enableSecurityStack) {
     });
 }
 
-if (enablePipelineStack) {
-    new PipelinesStack(app, 'PipelinesStack', {
-        env: default_env,
-
-        BranchName: "main",
-        RepositoryOwner: "FarrOut",
-        RepositoryName: "SeedyKay",
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
-        SubDir: "TypeScript"
-    });
-}
+// if (enablePipelineStack) {
+//     new PipelinesStack(app, 'PipelinesStack', {
+//         env: default_env,
+//
+//         BranchName: "main",
+//         RepositoryOwner: "FarrOut",
+//         RepositoryName: "SeedyKay",
+//         removalPolicy: cdk.RemovalPolicy.DESTROY,
+//         SubDir: "TypeScript"
+//     });
+// }

@@ -7,6 +7,8 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.iot_stack import IoTStack
+from motley.solutions.security_stack import SecurityStack
 from motley.solutions.alb_fargate_service_stack import AlbFargateServiceStack
 from motley.solutions.stacksets_stack import StackSetsStack
 from motley.solutions.s3_stack import S3Stack
@@ -30,9 +32,19 @@ from motley.solutions.windows_stack import WindowsStack
 
 secretsmanager_ = boto3.client("secretsmanager")
 
-app = App()
+app = App(
+    # Include construct creation stack trace in the aws:cdk:trace metadata key of all constructs. Default: true stack traces are included unless aws:cdk:disable-stack-trace is set in the context.
+    stack_traces=False,
+    # Include construct tree metadata as part of the Cloud Assembly. Default: true
+    tree_metadata=True,
+)
 peers = app.node.try_get_context("peers")
 key_name = app.node.try_get_context("key_name")
+debug_mode = bool(app.node.try_get_context("debug_mode"))
+
+if debug_mode:
+    print("Debug mode is enabled")
+
 app_name = "motley"
 
 default_env = Environment(account=os.getenv(
@@ -50,7 +62,7 @@ cross_account_b = app.node.try_get_context("cross_account_b")
 ##############
 # STACKS #
 ##############
-enable_ecs_pattern_stack = True
+enable_ecs_pattern_stack = False
 enable_canary_stack = False
 enable_lambda_stack = False
 enable_eks_stack = False
@@ -68,8 +80,10 @@ enable_ssm_stack = False
 enable_multi_target_alb_stack = False
 enable_apigateway_stack = False
 enable_cloudwatch_stack = False
-enable_s3_stack = True
+enable_s3_stack = False
 enable_stacksets_stack = False
+enable_security_stack = False
+enable_iot_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -92,12 +106,21 @@ net = NetworkingStack(
 #     ),
 # )
 
-# security = SecurityStack(
-#     app,
-#     "SecurityStack",
-#     removal_policy=RemovalPolicy.DESTROY,
-#     env=euro_env,
-# )
+if enable_security_stack:
+    security = SecurityStack(
+        app,
+        "SecurityStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_iot_stack:
+    IoTStack(
+        app,
+        "IoTStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )    
 
 if enable_stacksets_stack:
     StackSetsStack(
@@ -151,8 +174,8 @@ if enable_events_stack:
         env=default_env,
     )
 
-if enable_lambda_stack:
-    lambda_ = LambdaStack(
+if enable_lambda_stack:    
+    LambdaStack(
         app,
         "LambdaStack",
         removal_policy=RemovalPolicy.DESTROY,
@@ -296,4 +319,6 @@ if enable_canary_stack:
         ),
     )
 
-app.synth()
+app.synth(
+    force=debug_mode,  # Force a re-synth, even if the stage has already been synthesized. This is used by tests to allow for incremental verification of the output. Do not use in production. Default: false
+)
