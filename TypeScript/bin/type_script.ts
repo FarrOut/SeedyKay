@@ -26,7 +26,7 @@ const default_env = {
 
 
 let enableAutoscalingStack = false
-let enableLambdaStack = false
+let enableLambdaStack = true
 let enableEksStack = false
 let enableBluePrintStack = false
 let enableSecurityStack = false
@@ -34,7 +34,7 @@ let enablePipelineStack = false
 let enableLoadBalancingStack = false
 let enableInstanceStack = false
 let enableEventsStack = false
-let enableLoggingStack = true
+let enableLoggingStack = false
 let enableIoTStack = false
 
 

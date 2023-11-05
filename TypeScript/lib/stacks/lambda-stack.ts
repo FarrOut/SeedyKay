@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
-import {AlwaysUpdatingLambdaFunctionStack} from '../components/compute/lambda/always-updating-lambda-function-stack';
+import {PreBundledFunctionNestedStack} from '../components/compute/lambda/pre-bundled-function-nested-stack';
 
 /* ===============================================================================
 // === References ===
@@ -21,13 +21,24 @@ export class LambdaStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: MyProps) {
         super(scope, id, props);
 
+        /*
         let LambdaStack = new AlwaysUpdatingLambdaFunctionStack(this, 'AlwaysUpdatingLambdaFunctionStack', {
             removalPolicy: props.removalPolicy,
         })
+        */
+
+        let LambdaStack = new PreBundledFunctionNestedStack(this, 'PreBundledFunctionNestedStack', {
+            removalPolicy: props.removalPolicy,
+        })
+
+
+/*
         this.functionArn = LambdaStack.function.functionArn;
         new cdk.CfnOutput(this, 'LambdaFunctionArn', {
             value: this.functionArn,
             description: 'Lambda function ARN',
         })
+
+ */
     }
 }

@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.ecr_stack import EcrStack
 from motley.solutions.iot_stack import IoTStack
 from motley.solutions.security_stack import SecurityStack
 from motley.solutions.alb_fargate_service_stack import AlbFargateServiceStack
@@ -83,7 +84,8 @@ enable_cloudwatch_stack = False
 enable_s3_stack = False
 enable_stacksets_stack = False
 enable_security_stack = False
-enable_iot_stack = True
+enable_iot_stack = False
+enable_ecr_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -105,6 +107,14 @@ net = NetworkingStack(
 #         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
 #     ),
 # )
+
+if enable_ecr_stack:
+    EcrStack(
+        app,
+        "EcrStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
 
 if enable_security_stack:
     security = SecurityStack(
