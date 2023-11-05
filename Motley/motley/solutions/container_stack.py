@@ -20,12 +20,18 @@ class ContainerStack(NestedStack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        net = VpcNestedStack(self, "VpcStack", removal_policy=removal_policy)
-        vpc = net.vpc
+        if vpc is None:
+            net = VpcNestedStack(
+                self, "VpcStack", removal_policy=removal_policy)
+            vpc = net.vpc
+
+        creds = None
+        if secret_arn is not None:
+            creds = Secret.from_secret_complete_arn(self, "Secret", secret_arn)
 
         ecr = EcrImageNestedStack(self, "EcrImageNestedStack", image_name=image_name,
-                                  credentials=Secret.from_secret_complete_arn(self, "Secret", secret_arn),
+                                  credentials=creds,
                                   removal_policy=removal_policy)
 
-        ecs = EcsNestedStack(self, "EcsStack", vpc=vpc, removal_policy=removal_policy,
-                             container_image=ecr.image)
+        self.ecs = EcsNestedStack(self, "EcsStack", vpc=vpc, removal_policy=removal_policy,
+                                  container_image=ecr.image)
