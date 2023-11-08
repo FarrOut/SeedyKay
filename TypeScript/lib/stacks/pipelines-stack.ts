@@ -64,7 +64,7 @@ export class PipelinesStack extends cdk.Stack {
             codeBuildDefaults: {
                 buildEnvironment: {
                     // privileged: true,
-                    // buildImage: codebuild.LinuxBuildImage.STANDARD_6_0,
+                    buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
                     // computeType: codebuild.ComputeType.MEDIUM,
                 },
                 partialBuildSpec: codebuild.BuildSpec.fromObject({

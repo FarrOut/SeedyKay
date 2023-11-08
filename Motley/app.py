@@ -7,7 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
-from motley.solutions.cloudmap_stack import CloudMapStack
+from motley.solutions.flat_cloudmap_stack import CloudMapStack
 from motley.solutions.ecr_stack import EcrStack
 from motley.solutions.iot_stack import IoTStack
 from motley.solutions.security_stack import SecurityStack

@@ -26,11 +26,11 @@ const default_env = {
 
 
 let enableAutoscalingStack = false
-let enableLambdaStack = true
+let enableLambdaStack = false
 let enableEksStack = false
 let enableBluePrintStack = false
 let enableSecurityStack = false
-let enablePipelineStack = false
+let enablePipelineStack = true
 let enableLoadBalancingStack = false
 let enableInstanceStack = false
 let enableEventsStack = false
@@ -119,14 +119,14 @@ if (enableSecurityStack) {
     });
 }
 
-// if (enablePipelineStack) {
-//     new PipelinesStack(app, 'PipelinesStack', {
-//         env: default_env,
-//
-//         BranchName: "main",
-//         RepositoryOwner: "FarrOut",
-//         RepositoryName: "SeedyKay",
-//         removalPolicy: cdk.RemovalPolicy.DESTROY,
-//         SubDir: "TypeScript"
-//     });
-// }
+if (enablePipelineStack) {
+    new PipelinesStack(app, 'PipelinesStack', {
+        env: default_env,
+
+        BranchName: app.node.tryGetContext('BranchName'),
+        RepositoryOwner: app.node.tryGetContext('RepositoryOwner'),
+        RepositoryName: app.node.tryGetContext('RepositoryName'),
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        SubDir: "TypeScript"
+    });
+}
