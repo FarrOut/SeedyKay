@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
-import {PreBundledFunctionNestedStack} from '../components/compute/lambda/pre-bundled-function-nested-stack';
+import {PreBundledFunctionNestedStack} from "../components/compute/lambda/pre-bundled-function-nested-stack";
 
 /* ===============================================================================
 // === References ===

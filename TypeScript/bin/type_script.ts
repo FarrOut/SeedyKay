@@ -1,21 +1,18 @@
 #!/usr/bin/env node
 // import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { EksStack } from '../lib/stacks/eks-stack';
-import { LambdaStack } from '../lib/stacks/lambda-stack';
-import { EventsStack } from '../lib/stacks/events-stack';
-import { SecurityStack } from '../lib/stacks/security-stack';
-import { PipelinesStack } from '../lib/stacks/pipelines-stack';
+import {EksStack} from '../lib/stacks/eks-stack';
+import {LambdaStack} from '../lib/stacks/lambda-stack';
+import {EventsStack} from '../lib/stacks/events-stack';
+import {SecurityStack} from '../lib/stacks/security-stack';
+import {PipelinesStack} from '../lib/stacks/pipelines-stack';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-import { ClusterProvider } from "../lib/blueprints/eks/cluster-provider";
-import { networkOverlayAddOns, networkVPCProvider } from "../lib/blueprints/eks/vpc-provider";
-import { NetworkingStack } from "../lib/stacks/network-stack";
-import { AlbStack } from '../lib/stacks/alb-stack';
-import { AutoscalingStack } from '../lib/stacks/autoscaling-stack';
-import {InstanceStack} from "../lib/stacks/instance-stack";
-import * as logs from 'aws-cdk-lib/aws-logs';
-import { LoggingStack } from '../lib/stacks/logging-stack';
-import { IoTStack } from '../lib/stacks/iot-stack';
+import {ClusterProvider} from "../lib/blueprints/eks/cluster-provider";
+import {networkOverlayAddOns, networkVPCProvider} from "../lib/blueprints/eks/vpc-provider";
+import {NetworkingStack} from "../lib/stacks/network-stack";
+import {AlbStack} from '../lib/stacks/alb-stack';
+import {AutoscalingStack} from '../lib/stacks/autoscaling-stack';
+import {IoTStack} from '../lib/stacks/iot-stack';
 
 const app = new cdk.App();
 
@@ -120,7 +117,7 @@ if (enableSecurityStack) {
 }
 
 if (enablePipelineStack) {
-    new PipelinesStack(app, 'PipelinesStack', {
+    new PipelinesStack(app, 'TypeScriptPipelinesStack', {
         env: default_env,
 
         BranchName: app.node.tryGetContext('BranchName'),

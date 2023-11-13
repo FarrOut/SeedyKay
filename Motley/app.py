@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.machine_learning_stack import MachineLearningStack
 from motley.solutions.flat_cloudmap_stack import CloudMapStack
 from motley.solutions.ecr_stack import EcrStack
 from motley.solutions.iot_stack import IoTStack
@@ -73,7 +74,7 @@ enable_batch_stack = False
 enable_inspector_stack = False
 enable_documentdb_stack = False
 enable_autoscaling_stack = False
-enable_machine_learning_stack = False
+enable_machine_learning_stack = True
 enable_acm_stack = False
 enable_rds_stack = False
 enable_efs_stack = False
@@ -87,7 +88,7 @@ enable_stacksets_stack = False
 enable_security_stack = False
 enable_iot_stack = False
 enable_ecr_stack = False
-enable_cloudmap_stack = True
+enable_cloudmap_stack = False
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -140,7 +141,7 @@ if enable_iot_stack:
         "IoTStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
-    )    
+    )
 
 if enable_stacksets_stack:
     StackSetsStack(
@@ -194,7 +195,7 @@ if enable_events_stack:
         env=default_env,
     )
 
-if enable_lambda_stack:    
+if enable_lambda_stack:
     LambdaStack(
         app,
         "LambdaStack",
@@ -298,12 +299,12 @@ if enable_batch_stack:
         ),
     )
 
-# ml = MachineLearningStack(
-#     app,
-#     "MachineLearningStack",
-#     removal_policy=RemovalPolicy.DESTROY,
-#     env=default_env,
-# )
+ml = MachineLearningStack(
+    app,
+    "MachineLearningStack",
+    removal_policy=RemovalPolicy.DESTROY,
+    env=default_env,
+)
 
 # canary_deployment = CanaryDeploymentStack(
 #     app,
