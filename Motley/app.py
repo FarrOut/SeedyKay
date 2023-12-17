@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.service_catalog_stack import ServiceCatalogStack
 from motley.solutions.machine_learning_stack import MachineLearningStack
 from motley.solutions.flat_cloudmap_stack import CloudMapStack
 from motley.solutions.ecr_stack import EcrStack
@@ -89,6 +90,7 @@ enable_security_stack = False
 enable_iot_stack = False
 enable_ecr_stack = False
 enable_cloudmap_stack = False
+enable_service_catalog_stack = False
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -118,6 +120,14 @@ if enable_ecr_stack:
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
+
+if enable_service_catalog_stack:
+    ServiceCatalogStack(
+        app,
+        "ServiceCatalogStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )    
 
 if enable_cloudmap_stack:
     CloudMapStack(
