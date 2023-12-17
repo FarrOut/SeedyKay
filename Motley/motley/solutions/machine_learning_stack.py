@@ -18,7 +18,7 @@ class MachineLearningStack(Stack):
         # sage_maker = SageMakerSingleModelNestedStack(self, "SageMakerSingleModelNestedStack",
         #                                              repo_name='tensorflow-training',
         #                                              image_tag='2.13.0-cpu-py310-ubuntu20.04-ec2',
-        #                                              account_id='763104351884',
+        #                                              account_id='',
         #                                              removal_policy=removal_policy,
         #                                              )
 
