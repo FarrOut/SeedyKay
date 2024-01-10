@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info:
+  title: Sandbox API
+  description: >
+    <h1>Sandbox</h1>
+    Hello, just passing through.
+
+  license:
+    name: License
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: v0

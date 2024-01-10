@@ -1,11 +1,17 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: AWS SAM template with a simple API definition
+Description: AWS SAM template with a simple API definition.
+
 Resources:
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
+      BinaryMediaTypes:
+        - application/json
+        - text/plain
+        - image/png
       StageName: sandbox
+      DefinitionUri: definitions/pet-store.json
   ApiFunction: # Adds a GET api endpoint at "/" to the ApiGatewayApi via an Api event
     Type: AWS::Serverless::Function
     Properties:
