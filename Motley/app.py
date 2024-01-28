@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import os
 
-import boto3
 from aws_cdk import (
     # Duration,
     aws_ec2 as ec2,
     RemovalPolicy, App, Environment,
 )
+from motley.solutions.lakeformation_stack import LakeFormationStack
 from motley.solutions.service_catalog_stack import ServiceCatalogStack
 from motley.solutions.machine_learning_stack import MachineLearningStack
 from motley.solutions.flat_cloudmap_stack import CloudMapStack
@@ -33,8 +33,6 @@ from motley.solutions.inspector_stack import InspectorStack
 from motley.solutions.lambda_stack import LambdaStack
 from motley.solutions.networking_stack import NetworkingStack
 from motley.solutions.windows_stack import WindowsStack
-
-secretsmanager_ = boto3.client("secretsmanager")
 
 app = App(
     # Include construct creation stack trace in the aws:cdk:trace metadata key of all constructs. Default: true stack traces are included unless aws:cdk:disable-stack-trace is set in the context.
@@ -75,7 +73,7 @@ enable_batch_stack = False
 enable_inspector_stack = False
 enable_documentdb_stack = False
 enable_autoscaling_stack = False
-enable_machine_learning_stack = True
+enable_machine_learning_stack = False
 enable_acm_stack = False
 enable_rds_stack = False
 enable_efs_stack = False
@@ -91,6 +89,7 @@ enable_iot_stack = False
 enable_ecr_stack = False
 enable_cloudmap_stack = False
 enable_service_catalog_stack = False
+enable_lake_formation_stack = True
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -120,6 +119,14 @@ if enable_ecr_stack:
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
+
+if enable_lake_formation_stack:
+    LakeFormationStack(
+        app,
+        "LakeFormationStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )    
 
 if enable_service_catalog_stack:
     ServiceCatalogStack(
@@ -309,12 +316,13 @@ if enable_batch_stack:
         ),
     )
 
-ml = MachineLearningStack(
-    app,
-    "MachineLearningStack",
-    removal_policy=RemovalPolicy.DESTROY,
-    env=default_env,
-)
+if enable_machine_learning_stack:
+    ml = MachineLearningStack(
+        app,
+        "MachineLearningStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
 
 # canary_deployment = CanaryDeploymentStack(
 #     app,
