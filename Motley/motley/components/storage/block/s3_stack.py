@@ -10,6 +10,7 @@ class S3NestedStack(NestedStack):
     def __init__(self, scope: Construct, construct_id: str,
                  bucket_name: str = None,
                  removal_policy: RemovalPolicy = RemovalPolicy.RETAIN,
+                 enforce_ssl: bool = True,
                  auto_delete_objects: bool = False,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -18,7 +19,7 @@ class S3NestedStack(NestedStack):
                                 bucket_name=bucket_name,
                                 block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
                                 encryption=s3.BucketEncryption.S3_MANAGED,
-                                enforce_ssl=True,
+                                enforce_ssl=enforce_ssl,
                                 versioned=True,
                                 auto_delete_objects=auto_delete_objects,
                                 removal_policy=removal_policy,

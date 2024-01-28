@@ -1,6 +1,5 @@
-{
-  "profile": "default",  
-  "requireApproval": "never",
+{  
+  
   "pathMetadata": false,
   "assetMetadata": false,
   "rollback": true,
