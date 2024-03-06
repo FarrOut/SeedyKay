@@ -29,45 +29,45 @@ class LambdaNestedStack(NestedStack):
                     )
         role.apply_removal_policy(removal_policy)
 
-        self.file_system = efs.FileSystem(self, "Efs", vpc=vpc,
-                                          removal_policy=removal_policy,
-                                          )
+        # self.file_system = efs.FileSystem(self, "Efs", vpc=vpc,
+        #                                   removal_policy=removal_policy,
+        #                                   )
 
-        CfnOutput(self, 'FileSystemId',
-                  description='The ID of the file system, assigned by Amazon EFS.',
-                  value=str(self.file_system.file_system_id)
-                  )
-        CfnOutput(self, 'FileSystemArn',
-                  description='The ARN of the file system.',
-                  value=str(self.file_system.file_system_arn)
-                  )
+        # CfnOutput(self, 'FileSystemId',
+        #           description='The ID of the file system, assigned by Amazon EFS.',
+        #           value=str(self.file_system.file_system_id)
+        #           )
+        # CfnOutput(self, 'FileSystemArn',
+        #           description='The ARN of the file system.',
+        #           value=str(self.file_system.file_system_arn)
+        #           )
 
-        # create a new access point from the filesystem
-        access_point = (
-            self.file_system.add_access_point("AccessPoint",
-                                                  # set /export/lambda as the root of the access point
-                                                  path="/export/lambda",
-                                                  # as /export/lambda does not exist in a new efs filesystem,
-                                                  # the efs will create the directory with the following createAcl
-                                                  create_acl=efs.Acl(
-                                                      owner_uid="1001",
-                                                      owner_gid="1001",
-                                                      permissions="750"
-                                                  ),
-                                                  # enforce the POSIX identity
-                                                  # so lambda function will access with this identity
-                                                  posix_user=efs.PosixUser(
-                                                      uid="1001",
-                                                      gid="1001"
-                                                  )
-                                                  ))
-        access_point.apply_removal_policy(removal_policy)
+        # # create a new access point from the filesystem
+        # access_point = (
+        #     self.file_system.add_access_point("AccessPoint",
+        #                                           # set /export/lambda as the root of the access point
+        #                                           path="/export/lambda",
+        #                                           # as /export/lambda does not exist in a new efs filesystem,
+        #                                           # the efs will create the directory with the following createAcl
+        #                                           create_acl=efs.Acl(
+        #                                               owner_uid="1001",
+        #                                               owner_gid="1001",
+        #                                               permissions="750"
+        #                                           ),
+        #                                           # enforce the POSIX identity
+        #                                           # so lambda function will access with this identity
+        #                                           posix_user=efs.PosixUser(
+        #                                               uid="1001",
+        #                                               gid="1001"
+        #                                           )
+        #                                           ))
+        # access_point.apply_removal_policy(removal_policy)
 
         self.function = lambda_.Function(self, "lambda_function",
                               runtime=Runtime.PYTHON_3_9,
                               handler="script.main",
                               role=role,
                               vpc=vpc,
-                              filesystem=lambda_.FileSystem.from_efs_access_point(access_point, "/mnt/msg"),
+                            #   filesystem=lambda_.FileSystem.from_efs_access_point(access_point, "/mnt/msg"),
                               code=Code.from_asset("./assets/handlers"))
         self.function.apply_removal_policy(removal_policy)

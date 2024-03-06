@@ -12,7 +12,7 @@ class Route53Stack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         self.domain_stack = DomainStack(self, "DomainStack",
-                                        zone_name="zone_name",
+                                        zone_name=zone_name,
                                         vpc=vpc,
                                         )
 
@@ -41,10 +41,6 @@ class DomainStack(NestedStack):
                   value=str(self.zone.hosted_zone_id),
                   )
 
-        # CfnOutput(self, 'HostedZoneNameServers',
-        #           description='the set of name servers for the specific hosted zone.',
-        #           value=str(self.zone.hosted_zone_name_servers),
-        #           )
         CfnOutput(self, 'HostedZoneName',
                   description='FQDN of this hosted zone.',
                   value=str(self.zone.zone_name),
@@ -60,11 +56,16 @@ class RecordSetStack(NestedStack):
             type="CNAME",
         )
 
+        record_set_two = CfnRecordSetGroup.RecordSetProperty(
+            name="sandbox.{}".format(hosted_zone.zone_name),
+            type="CNAME",
+        )
+
         record_set_group = CfnRecordSetGroup(self, "MyCfnRecordSetGroup",
                                              comment='My group of RecordSets',
-                                             # hosted_zone_name=hosted_zone.zone_name,
                                              hosted_zone_id=hosted_zone.hosted_zone_id,
-                                             record_sets=[record_set_one],
+                                             record_sets=[
+                                                 record_set_one, record_set_two],
                                              )
         CfnOutput(self, 'RecordSetGroupName',
                   description='The name of the record set group,',

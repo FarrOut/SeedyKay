@@ -112,7 +112,7 @@ class WindowsInstanceStack(NestedStack):
                         ),
                         ec2.InitFile.from_string(
                             "c:\\cfn\\hook.bat",
-                            "echo hello > c:\cfn\hello.txt{}".format("\n")
+                            "echo hello > c:\\cfn\\hello.txt{}".format("\n")
                             + "cfn-init.exe -v -c default -s {} -r {} --region {} {}".format(
                                 self.stack_id, "XXXXXXXXXX", self.region, "\n"
                             ),
@@ -124,7 +124,7 @@ class WindowsInstanceStack(NestedStack):
                             + "path=Resources.{}.Metadata.AWS::CloudFormation::Init{}".format(
                                 "XXXXXXXXXX", "\n"
                             )
-                            + "actions=c:\cfn\hook.bat {}".format("\n"),
+                            + "actions=c:\\cfn\\hook.bat {}".format("\n"),
                         ),
                         ec2.InitService.enable(
                             "cfn-hup",

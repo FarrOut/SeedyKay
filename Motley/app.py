@@ -32,7 +32,9 @@ from motley.solutions.eks_stack import EksStack
 from motley.solutions.inspector_stack import InspectorStack
 from motley.solutions.lambda_stack import LambdaStack
 from motley.solutions.networking_stack import NetworkingStack
+from motley.solutions.vpc_endpoint_stack import VpcEndpointStack
 from motley.solutions.windows_stack import WindowsStack
+from motley.components.analytics.lakeformation_nestedstack import LakeFormation
 
 app = App(
     # Include construct creation stack trace in the aws:cdk:trace metadata key of all constructs. Default: true stack traces are included unless aws:cdk:disable-stack-trace is set in the context.
@@ -79,6 +81,7 @@ enable_rds_stack = False
 enable_efs_stack = False
 enable_events_stack = False
 enable_ssm_stack = False
+enable_vpc_endpoint_stack = True
 enable_multi_target_alb_stack = False
 enable_apigateway_stack = False
 enable_cloudwatch_stack = False
@@ -89,7 +92,7 @@ enable_iot_stack = False
 enable_ecr_stack = False
 enable_cloudmap_stack = False
 enable_service_catalog_stack = False
-enable_lake_formation_stack = True
+enable_lake_formation_stack = False
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -103,6 +106,15 @@ net = NetworkingStack(
     cross_region_references=True,
     env=default_env,
 )
+
+if enable_vpc_endpoint_stack:
+    VpcEndpointStack(
+        app,
+        "VpcEndpointStack",
+        vpc=net.vpc,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
 
 # analytics = AnalyticsStack(
 #     app,
@@ -121,12 +133,31 @@ if enable_ecr_stack:
     )
 
 if enable_lake_formation_stack:
-    LakeFormationStack(
+    lake = LakeFormationStack(
         app,
         "LakeFormationStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
-    )    
+    )
+    LakeFormation(app, 'LakeFormationStack1',
+                  identifier='1',
+                  env=default_env,
+                  database=lake.database,
+                  role=lake.role,
+                  removal_policy=RemovalPolicy.DESTROY)
+
+    LakeFormation(app, 'LakeFormationStack2',
+                  identifier='2',
+                  env=default_env,
+                  database=lake.database,
+                  role=lake.role,
+                  removal_policy=RemovalPolicy.DESTROY)
+    LakeFormation(app, 'LakeFormationStack3',
+                  identifier='3',
+                  database=lake.database,
+                  role=lake.role,
+                  env=default_env,
+                  removal_policy=RemovalPolicy.DESTROY)
 
 if enable_service_catalog_stack:
     ServiceCatalogStack(
@@ -134,7 +165,7 @@ if enable_service_catalog_stack:
         "ServiceCatalogStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
-    )    
+    )
 
 if enable_cloudmap_stack:
     CloudMapStack(

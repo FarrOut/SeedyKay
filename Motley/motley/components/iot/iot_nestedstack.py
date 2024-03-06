@@ -5,6 +5,8 @@ from aws_cdk import (
 from constructs import Construct
 
 from motley.components.iot.iot_logging_nestedstack import IoTloggingNestedStack
+from motley.components.iot.iot_rules_nestedstack import IoTRulesNestedStack
+from motley.computing.lambda_nestedstack import LambdaNestedStack
 
 
 class IoTNestedStack(NestedStack):
@@ -24,3 +26,11 @@ class IoTNestedStack(NestedStack):
                                         account_id=self.account,
                                         role=logging_role,
                                         )
+
+        function = LambdaNestedStack(self, 'LambdaNestedStack',).function
+
+
+        rules = IoTRulesNestedStack(self, 'IoTRulesNestedStack',
+                               removal_policy=removal_policy,   
+                               function=function,  
+        )
