@@ -1,8 +1,9 @@
 from aws_cdk import (
     # Duration,
-    Stack, RemovalPolicy, aws_ec2 as ec2,)
+    Stack, RemovalPolicy, aws_ec2 as ec2, aws_rds as rds,)
 from constructs import Construct
 from motley.components.storage.databases.rds_nestedstack import RdsNestedStack
+from motley.components.storage.databases.rds_tagged_nest import RdsTaggedNest
 
 
 class RdsStack(Stack):
@@ -15,3 +16,6 @@ class RdsStack(Stack):
 
         RdsNestedStack(self, "RdsNestedStack", vpc=vpc,
                        removal_policy=removal_policy)
+
+        # RdsTaggedNest(self, "RdsTaggedNest", vpc=vpc,
+        #                removal_policy=removal_policy)

@@ -4,6 +4,7 @@ from aws_cdk import (
 )
 from constructs import Construct
 from motley.components.networking.rest_api_gateway_nestedstack import RestApiGatewayNestedStack
+from motley.components.networking.simple_api_gateway_nestedstack import SimpleApiGatewayNestedStack
 
 
 class ApiGatewayStack(Stack):
@@ -13,6 +14,10 @@ class ApiGatewayStack(Stack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        api_gw = RestApiGatewayNestedStack(self, 'RestApiGatewayNestedStack',        
+        # api_gw = RestApiGatewayNestedStack(self, 'RestApiGatewayNestedStack',        
+        #                                    removal_policy=removal_policy,
+        #                                    )
+
+        api_gw = SimpleApiGatewayNestedStack(self, 'SimpleApiGatewayNestedStack',        
                                            removal_policy=removal_policy,
                                            )

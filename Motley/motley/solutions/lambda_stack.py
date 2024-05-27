@@ -9,6 +9,7 @@ from motley.components.networking.vpc_stack import VpcNestedStack
 
 from motley.computing.lambda_nestedstack import LambdaNestedStack
 from motley.components.storage.filesystems.efs_nestedstack import EfsNestedStack
+from motley.computing.layered_lambda_nest import LayeredLambdaNest
 
 
 class LambdaStack(Stack):
@@ -18,8 +19,8 @@ class LambdaStack(Stack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        net = VpcNestedStack(self, "VpcStack", removal_policy=removal_policy)
-        vpc = net.vpc
-
         self.lambda_ = LambdaNestedStack(self, "LambdaNestedStack",
-                                         vpc=vpc, removal_policy=removal_policy)
+                                         vpc=None, removal_policy=removal_policy)
+
+        # LayeredLambdaNest(self, "LayeredLambdaNest",
+        #                   removal_policy=removal_policy)

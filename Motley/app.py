@@ -3,10 +3,22 @@ import os
 
 from aws_cdk import (
     # Duration,
+    Tags,
     aws_ec2 as ec2,
-    RemovalPolicy, App, Environment,
+    aws_iam as iam,
+    RemovalPolicy,
+    App,
+    Environment,
 )
+
+from motley.solutions.cloudtrail_stack import CloudTrailStack
+from motley.solutions.config_stack import ConfigStack
+from motley.solutions.custom_resource_stack import CustomResourceStack
+from motley.solutions.ec2_stack import Ec2Stack
+from motley.solutions.guard_duty_stack import GuardDutyStack
+from motley.solutions.kms_stack import KmsStack
 from motley.solutions.lakeformation_stack import LakeFormationStack
+from motley.solutions.r53_stack import Route53Stack
 from motley.solutions.service_catalog_stack import ServiceCatalogStack
 from motley.solutions.machine_learning_stack import MachineLearningStack
 from motley.solutions.flat_cloudmap_stack import CloudMapStack
@@ -46,19 +58,18 @@ peers = app.node.try_get_context("peers")
 key_name = app.node.try_get_context("key_name")
 debug_mode = bool(app.node.try_get_context("debug_mode"))
 
+
 if debug_mode:
     print("Debug mode is enabled")
 
 app_name = "motley"
 
-default_env = Environment(account=os.getenv(
-    'CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
-africa_env = Environment(account=os.getenv(
-    'CDK_DEFAULT_ACCOUNT'), region='af-south-1')
-euro_env = Environment(account=os.getenv(
-    'CDK_DEFAULT_ACCOUNT'), region='eu-central-1')
-alt_env = Environment(account=os.getenv(
-    'CDK_DEFAULT_ACCOUNT'), region='us-east-1')
+default_env = Environment(
+    account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+)
+africa_env = Environment(account=os.getenv("CDK_DEFAULT_ACCOUNT"), region="af-south-1")
+euro_env = Environment(account=os.getenv("CDK_DEFAULT_ACCOUNT"), region="eu-central-1")
+alt_env = Environment(account=os.getenv("CDK_DEFAULT_ACCOUNT"), region="us-east-1")
 
 cross_account_a = app.node.try_get_context("cross_account_a")
 cross_account_b = app.node.try_get_context("cross_account_b")
@@ -66,33 +77,40 @@ cross_account_b = app.node.try_get_context("cross_account_b")
 ##############
 # STACKS #
 ##############
-enable_ecs_pattern_stack = False
-enable_canary_stack = False
-enable_lambda_stack = False
-enable_eks_stack = False
-enable_windows_stack = False
-enable_batch_stack = False
-enable_inspector_stack = False
-enable_documentdb_stack = False
-enable_autoscaling_stack = False
-enable_machine_learning_stack = False
 enable_acm_stack = False
-enable_rds_stack = False
-enable_efs_stack = False
-enable_events_stack = False
-enable_ssm_stack = False
-enable_vpc_endpoint_stack = True
-enable_multi_target_alb_stack = False
 enable_apigateway_stack = False
-enable_cloudwatch_stack = False
-enable_s3_stack = False
-enable_stacksets_stack = False
-enable_security_stack = False
-enable_iot_stack = False
-enable_ecr_stack = False
+enable_autoscaling_stack = False
+enable_batch_stack = False
+enable_canary_stack = False
 enable_cloudmap_stack = False
-enable_service_catalog_stack = False
+enable_cloudtrail_stack = False
+enable_cloudwatch_stack = True
+enable_config_stack = True
+enable_custom_resource_stack = False
+enable_documentdb_stack = False
+enable_ec2_stack = True
+enable_ecr_stack = False
+enable_ecs_pattern_stack = False
+enable_efs_stack = False
+enable_eks_stack = False
+enable_events_stack = False
+enable_guard_duty_stack = True
+enable_inspector_stack = False
+enable_iot_stack = False
+enable_kms_stack = True
 enable_lake_formation_stack = False
+enable_lambda_stack = True
+enable_machine_learning_stack = False
+enable_multi_target_alb_stack = False
+enable_rds_stack = True
+enable_r53_stack = True
+enable_s3_stack = False
+enable_security_stack = False
+enable_service_catalog_stack = False
+enable_ssm_stack = False
+enable_stacksets_stack = False
+enable_vpc_endpoint_stack = False
+enable_windows_stack = False
 
 # waf_stack = WafCloudFrontStack(app, "WafCloudFrontStack", removal_policy=RemovalPolicy.DESTROY, env=Environment(
 #     account=os.getenv("CDK_DEFAULT_ACCOUNT"), region='us-east-1'
@@ -111,6 +129,73 @@ if enable_vpc_endpoint_stack:
     VpcEndpointStack(
         app,
         "VpcEndpointStack",
+        vpc=net.vpc,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_r53_stack:
+    Route53Stack(
+        app,
+        "R53Stack",
+        vpc=net.vpc,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_kms_stack:
+    KmsStack(
+        app,
+        "KmsStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_custom_resource_stack:
+    endpoint = VpcEndpointStack(
+        app,
+        "VpcEndpointStack",
+        vpc=net.vpc,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    ).endpoint
+    CustomResourceStack(
+        app,
+        "CustomResourceStack",
+        vpc_endpoint=endpoint,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+
+if enable_cloudtrail_stack:
+    CloudTrailStack(
+        app,
+        "CloudTrailStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_config_stack:
+    ConfigStack(
+        app,
+        "ConfigStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_guard_duty_stack:
+    GuardDutyStack(
+        app,
+        "GuardDutyStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_ec2_stack:
+    Ec2Stack(
+        app,
+        "Ec2Stack",
         vpc=net.vpc,
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
@@ -139,25 +224,34 @@ if enable_lake_formation_stack:
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
-    LakeFormation(app, 'LakeFormationStack1',
-                  identifier='1',
-                  env=default_env,
-                  database=lake.database,
-                  role=lake.role,
-                  removal_policy=RemovalPolicy.DESTROY)
+    LakeFormation(
+        app,
+        "LakeFormationStack1",
+        identifier="1",
+        env=default_env,
+        database=lake.database,
+        role=lake.role,
+        removal_policy=RemovalPolicy.DESTROY,
+    )
 
-    LakeFormation(app, 'LakeFormationStack2',
-                  identifier='2',
-                  env=default_env,
-                  database=lake.database,
-                  role=lake.role,
-                  removal_policy=RemovalPolicy.DESTROY)
-    LakeFormation(app, 'LakeFormationStack3',
-                  identifier='3',
-                  database=lake.database,
-                  role=lake.role,
-                  env=default_env,
-                  removal_policy=RemovalPolicy.DESTROY)
+    LakeFormation(
+        app,
+        "LakeFormationStack2",
+        identifier="2",
+        env=default_env,
+        database=lake.database,
+        role=lake.role,
+        removal_policy=RemovalPolicy.DESTROY,
+    )
+    LakeFormation(
+        app,
+        "LakeFormationStack3",
+        identifier="3",
+        database=lake.database,
+        role=lake.role,
+        env=default_env,
+        removal_policy=RemovalPolicy.DESTROY,
+    )
 
 if enable_service_catalog_stack:
     ServiceCatalogStack(
@@ -213,7 +307,7 @@ if enable_ecs_pattern_stack:
         app,
         "AlbFargateServiceStack",
         # vpc=net.vpc,
-        vpc_id='vpc-08ec4c9b2b7d0fcb0',
+        vpc_id="vpc-08ec4c9b2b7d0fcb0",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
@@ -234,6 +328,7 @@ if enable_cloudwatch_stack:
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
+    Tags.of(cw).add("Note", "Stack-level-tag")
 
 if enable_events_stack:
     events = EventsStack(
@@ -286,6 +381,7 @@ if enable_rds_stack:
         env=default_env,
     )
 
+
 if enable_acm_stack:
     acm = CertificateManagerStack(
         app,
@@ -329,10 +425,11 @@ if enable_eks_stack:
         app,
         "EksStack",
         # vpc=net.vpc,
-        eks_version='1.24',
+        eks_version="1.24",
         removal_policy=RemovalPolicy.DESTROY,
         env=Environment(
-            account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+            account=os.getenv("CDK_DEFAULT_ACCOUNT"),
+            region=os.getenv("CDK_DEFAULT_REGION"),
         ),
     )
 
@@ -343,7 +440,8 @@ if enable_batch_stack:
         "BatchStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=Environment(
-            account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+            account=os.getenv("CDK_DEFAULT_ACCOUNT"),
+            region=os.getenv("CDK_DEFAULT_REGION"),
         ),
     )
 
@@ -385,7 +483,8 @@ if enable_canary_stack:
         app,
         "CanaryStack",
         env=Environment(
-            account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
+            account=os.getenv("CDK_DEFAULT_ACCOUNT"),
+            region=os.getenv("CDK_DEFAULT_REGION"),
         ),
     )
 

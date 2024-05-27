@@ -1,6 +1,6 @@
 from aws_cdk import (
     # Duration,
-    NestedStack, aws_efs as efs,
+    NestedStack, aws_efs as efs, PhysicalName, aws_kms as kms,
     aws_ec2 as ec2, aws_lambda as lambda_, RemovalPolicy, CfnOutput, )
 from aws_cdk.aws_iam import Role, ServicePrincipal, ManagedPolicy
 from aws_cdk.aws_lambda import Runtime, Code
@@ -23,8 +23,10 @@ class LambdaNestedStack(NestedStack):
                     # custom description if desired
                     description="This is a custom role...",
                     managed_policies=[
-                        ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole'),
-                        ManagedPolicy.from_aws_managed_policy_name('AmazonEC2FullAccess')
+                        ManagedPolicy.from_aws_managed_policy_name(
+                            'service-role/AWSLambdaBasicExecutionRole'),
+                        ManagedPolicy.from_aws_managed_policy_name(
+                            'AmazonEC2FullAccess')
                     ],
                     )
         role.apply_removal_policy(removal_policy)
@@ -63,11 +65,21 @@ class LambdaNestedStack(NestedStack):
         #                                           ))
         # access_point.apply_removal_policy(removal_policy)
 
-        self.function = lambda_.Function(self, "lambda_function",
-                              runtime=Runtime.PYTHON_3_9,
-                              handler="script.main",
-                              role=role,
-                              vpc=vpc,
-                            #   filesystem=lambda_.FileSystem.from_efs_access_point(access_point, "/mnt/msg"),
-                              code=Code.from_asset("./assets/handlers"))
+        # key = kms.Key(self, "MyKey",
+        #               removal_policy=removal_policy,
+        #               )
+
+        self.function = lambda_.Function(self, "lambda_function_changed",
+                                         runtime=Runtime.PYTHON_3_12,
+                                         handler="script.main",
+                                         role=role,
+                                         #   function_name=PhysicalName.GENERATE_IF_NEEDED,
+                                         vpc=vpc,
+                                         #   filesystem=lambda_.FileSystem.from_efs_access_point(access_point, "/mnt/msg"),
+                                         code=Code.from_asset(
+                                             "./assets/handlers"),
+                                         environment={
+                                             'Message': 'topsy kretts'},
+                                        #  environment_encryption=key,
+                                         )
         self.function.apply_removal_policy(removal_policy)

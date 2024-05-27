@@ -21,10 +21,10 @@ class VpcEndpointStack(Stack):
         CfnOutput(self, "VpcId", value=vpc.vpc_id)
 
 
-        endpoint = vpc.add_interface_endpoint('InterfaceEndpoint',
+        self.endpoint = vpc.add_interface_endpoint('InterfaceEndpoint',
                                               service=ec2.InterfaceVpcEndpointAwsService('ssm'),
                                               open=False,                                              
                                               )
-        endpoint.apply_removal_policy(removal_policy)
+        self.endpoint.apply_removal_policy(removal_policy)
 
-        CfnOutput(self, "EndpointId", value=endpoint.vpc_endpoint_id)
+        CfnOutput(self, "EndpointId", value=self.endpoint.vpc_endpoint_id)

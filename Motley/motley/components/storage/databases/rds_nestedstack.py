@@ -16,7 +16,7 @@ class RdsNestedStack(NestedStack):
 
         parameter_group = rds.ParameterGroup(self, "ParameterGroup",
                                              engine=rds.DatabaseInstanceEngine.postgres(
-                                                 version=rds.PostgresEngineVersion.VER_15_3),
+                                                 version=rds.PostgresEngineVersion.VER_16_1),
                                              description='Testing drift',
                                              parameters={
                                                  "shared_preload_libraries": "pg_stat_statements",
