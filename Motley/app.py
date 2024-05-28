@@ -12,6 +12,7 @@ from aws_cdk import (
 )
 
 from motley.solutions.cloudtrail_stack import CloudTrailStack
+from motley.solutions.codebuild_stack import CodeBuildStack
 from motley.solutions.config_stack import ConfigStack
 from motley.solutions.custom_resource_stack import CustomResourceStack
 from motley.solutions.ec2_stack import Ec2Stack
@@ -85,6 +86,7 @@ enable_canary_stack = False
 enable_cloudmap_stack = False
 enable_cloudtrail_stack = False
 enable_cloudwatch_stack = True
+enable_codebuild_stack = True
 enable_config_stack = True
 enable_custom_resource_stack = False
 enable_documentdb_stack = False
@@ -148,6 +150,15 @@ if enable_kms_stack:
         app,
         "KmsStack",
         removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_codebuild_stack:
+    CodeBuildStack(
+        app,
+        "CodeBuildStack",
+        removal_policy=RemovalPolicy.DESTROY,
+        vpc=net.vpc,
         env=default_env,
     )
 
