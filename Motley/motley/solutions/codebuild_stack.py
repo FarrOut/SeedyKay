@@ -21,13 +21,10 @@ class CodeBuildStack(Stack):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-
-
         cb = CodeBuildNest(
             self,
             "CodeBuildNest",
             vpc=vpc,
-            subnet_id='subnet-02173a18b0a1d68e0',
-            
+            subnet_id="subnet-09a1eb5bffcd5d832",
             removal_policy=removal_policy,
         )

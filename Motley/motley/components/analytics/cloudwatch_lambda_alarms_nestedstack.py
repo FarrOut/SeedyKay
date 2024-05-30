@@ -1,6 +1,6 @@
 from aws_cdk import (
     # Duration,
-    aws_synthetics_alpha as synthetics, aws_lambda as lambda_, aws_cloudwatch as cloudwatch, aws_ec2 as ec2, aws_sns as sns, aws_cloudwatch_actions as cw_actions,
+    aws_synthetics_alpha as synthetics, aws_lambda as lambda_, aws_cloudwatch as cloudwatch, aws_ec2 as ec2, aws_sns as sns, aws_cloudwatch_actions as cw_actions,Tags,
     NestedStack, RemovalPolicy, Duration, CfnOutput, )
 from aws_cdk.aws_synthetics_alpha import Code, RuntimeFamily
 from constructs import Construct
@@ -37,6 +37,9 @@ class CloudWatchLambdaAlarmsNestedStack(NestedStack):
                   description='Arn of invocation errors alarm.')
         CfnOutput(self, 'ErrorsAlarmName', value=errors_alarm.alarm_name,
                   description='Name of invocation errors alarm.')
+
+        # Tags.of(errors_alarm).add("Resource-level-tag", "Bilbo Taggins")
+        Tags.of(errors_alarm).remove("Resource-level-tag")
 
         # #######
         # INVOCATIONS
