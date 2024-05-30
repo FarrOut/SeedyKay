@@ -24,12 +24,12 @@ class CodeBuildUpdater(Construct):
         self,
         scope: Construct,
         construct_id: str,
-        fleet_arn: str,
+        parameters: dict,
         service_role: iam.IRole,
         removal_policy: RemovalPolicy = RemovalPolicy.DESTROY,
         **kwargs,
     ) -> None:
-        super().__init__(scope, construct_id, **kwargs)        
+        super().__init__(scope, construct_id, **kwargs)
 
         self.log_group = logs.LogGroup(
             self,
@@ -58,7 +58,7 @@ class CodeBuildUpdater(Construct):
             on_update=cr.AwsSdkCall(  # will also be called for a CREATE event
                 service="codebuild",
                 action="UpdateFleet",
-                parameters={"arn": fleet_arn, "baseCapacity": 6},
+                parameters=parameters,
                 physical_resource_id=cr.PhysicalResourceId.of(f"{datetime.now()}"),
             ),
             policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
@@ -70,4 +70,4 @@ class CodeBuildUpdater(Construct):
         )
 
         # Use the value in another construct with
-        # custom_resource.get_response_field("Parameter.Value")
+        # self.response = custom_resource.get_response_field("fleet.status.message")

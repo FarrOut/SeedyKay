@@ -122,13 +122,26 @@ class CodeBuildNest(NestedStack):
         CfnOutput(self, "FleetName", value=str(fleet.name))
 
         # Update fleet to enable ScalingConfiguration
+        params = {
+            "arn": fleet.attr_arn,
+            "scalingConfiguration": {
+                "desiredCapacity": 6,
+                "maxCapacity": 12,
+                "scalingType": "TARGET_TRACKING_SCALING",
+                "targetTrackingScalingConfigs": [
+                    {"metricType": "FLEET_UTILIZATION_RATE", "targetValue": 80.0}
+                ],
+            },
+        }
+
         updater = CodeBuildUpdater(
             self,
             "CodeBuildUpdater",
-            fleet_arn=fleet.attr_arn,
+            parameters=params,
             service_role=role,
         )
         updater.node.add_dependency(fleet)
+        # CfnOutput(self, "UpdateResponse", value=str(updater.response))
 
 
 class CodeBuildSecurityNest(NestedStack):
