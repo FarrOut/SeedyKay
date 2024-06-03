@@ -23,12 +23,12 @@ class Ec2Stack(Stack):
         #                vpc=vpc,
         #                )
 
-        # SimpleInstanceNestedStack(self, 'SimpleInstanceNestedStack',
-        #                           removal_policy=removal_policy,
-        #                           vpc=vpc,
-        #                           )
-
-        EncryptedInstanceNestedStack(self, 'EncryptedInstanceNestedStack',
+        SimpleInstanceNestedStack(self, 'SimpleInstanceNestedStack',
                                   removal_policy=removal_policy,
                                   vpc=vpc,
                                   )
+
+        # EncryptedInstanceNestedStack(self, 'EncryptedInstanceNestedStack',
+        #                           removal_policy=removal_policy,
+        #                           vpc=vpc,
+        #                           )
