@@ -25,6 +25,6 @@ class CodeBuildStack(Stack):
             self,
             "CodeBuildNest",
             vpc=vpc,
-            subnet_id="subnet-09a1eb5bffcd5d832",
+            subnet_id="subnet-00371b26ee7f7d4b6",
             removal_policy=removal_policy,
         )

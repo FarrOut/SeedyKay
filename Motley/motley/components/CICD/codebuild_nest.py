@@ -25,56 +25,8 @@ class CodeBuildNest(NestedStack):
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
-
-        # subnet_id = str(vpc.private_subnets[0].subnet_id)
+        
         subnet_arn = f"arn:aws:ec2:{self.region}:{self.account}:subnet/{subnet_id}"
-        # subnet = ec2.Subnet.from_subnet_id(self, "subnet", subnet_id)
-
-        # role = iam.Role(
-        #     self,
-        #     "CodeBuildRole",
-        #     assumed_by=iam.ServicePrincipal("codebuild.amazonaws.com"),
-        # )
-
-        # CfnOutput(self, "CodeBuildRoleArn", value=role.role_arn)
-
-        # policy = iam.Policy(
-        #     self,
-        #     "codebuild-fleet-policy",
-        #     statements=[
-        #         iam.PolicyStatement(
-        #             actions=[
-        #                 "ec2:CreateNetworkInterface",
-        #                 "ec2:DescribeDhcpOptions",
-        #                 "ec2:DescribeNetworkInterfaces",
-        #                 "ec2:DeleteNetworkInterface",
-        #                 "ec2:DescribeSubnets",
-        #                 "ec2:DescribeSecurityGroups",
-        #                 "ec2:DescribeVpcs",
-        #             ],
-        #             effect=iam.Effect.ALLOW,
-        #             resources=["*"],
-        #         ),
-        #         iam.PolicyStatement(
-        #             actions=[
-        #                 "ec2:CreateNetworkInterfacePermission",
-        #                 "ec2:ModifyNetworkInterfaceAttribute",
-        #             ],
-        #             effect=iam.Effect.ALLOW,
-        #             resources=[
-        #                 f"arn:aws:ec2:{self.region}:{self.account}:network-interface/*"
-        #             ],
-        #             conditions={
-        #                 # Doesn't work for some reason
-        #                 # "StringEquals": {
-        #                 #     "ec2:AuthorizedService": "codebuild.amazonaws.com"
-        #                 # },
-        #                 "ArnEquals": {"ec2:Subnet": [subnet_arn]},
-        #             },
-        #         ),
-        #     ],
-        # )
-        # policy.attach_to_role(role)
 
         role = CodeBuildSecurityNest(
             self,
@@ -122,6 +74,7 @@ class CodeBuildNest(NestedStack):
         CfnOutput(self, "FleetName", value=str(fleet.name))
 
         # Update fleet to enable ScalingConfiguration
+        # DEMO
         params = {
             "arn": fleet.attr_arn,
             "scalingConfiguration": {
@@ -140,8 +93,8 @@ class CodeBuildNest(NestedStack):
             parameters=params,
             service_role=role,
         )
-        updater.node.add_dependency(fleet)
-        # CfnOutput(self, "UpdateResponse", value=str(updater.response))
+        # Ensure Updater runs AFTER resource has been created.
+        updater.node.add_dependency(fleet)        
 
 
 class CodeBuildSecurityNest(NestedStack):
