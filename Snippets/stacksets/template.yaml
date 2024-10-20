@@ -1,6 +1,0 @@
-
-
-Resources:
-  Dummy:
-    Type: AWS::ECS::Cluster
-    Properties: {}
