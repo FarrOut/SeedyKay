@@ -47,15 +47,41 @@ class AppConfigNestedStack(NestedStack):
 
         # Create a Hosted Configuration Version
         content = {
-            "flags": {"ui_refresh": {"name": "UI Refresh"}},
+            "flags": {
+                "ui_refresh": {
+                    "attributes": {
+                        "dark_mode_support": {"constraints": {"type": "boolean"}}
+                    },
+                    "description": "A release flag used to release a new UI",
+                    "name": "UI Refresh",
+                }
+            },
             "values": {
                 "ui_refresh": {
-                    "enabled": True,
-                    "attributeValues": {"dark_mode_support": False},
+                    "_variants": [
+                        {
+                            "attributeValues": {"dark_mode_support": True},
+                            "enabled": True,
+                            "name": "QA",
+                            "rule": '(ends_with $email "qa-testers.mycompany.com")',
+                        },
+                        {
+                            "attributeValues": {"dark_mode_support": False},
+                            "enabled": True,
+                            "name": "Sample Population",
+                            "rule": "(split pct::10 by::$email)",
+                        },
+                        {
+                            "attributeValues": {"dark_mode_support": False},
+                            "enabled": False,
+                            "name": "Default Variant",
+                        },
+                    ]
                 }
             },
             "version": "1",
         }
+
         appconfig.HostedConfiguration(
             self,
             "MyHostedConfiguration",
