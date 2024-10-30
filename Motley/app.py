@@ -11,6 +11,7 @@ from aws_cdk import (
     Environment,
 )
 
+from motley.solutions.appconfig_stack import AppConfigStack
 from motley.solutions.cloudtrail_stack import CloudTrailStack
 from motley.solutions.codebuild_stack import CodeBuildStack
 from motley.solutions.codestar_stack import CodeStarStack
@@ -81,29 +82,30 @@ cross_account_b = app.node.try_get_context("cross_account_b")
 ##############
 enable_acm_stack = False
 enable_apigateway_stack = False
+enable_appconfig_stack = True
 enable_autoscaling_stack = False
 enable_batch_stack = False
 enable_canary_stack = False
 enable_cloudmap_stack = False
 enable_cloudtrail_stack = False
-enable_cloudwatch_stack = True
-enable_codebuild_stack = True
-enable_codestar_stack = True
-enable_config_stack = True
+enable_cloudwatch_stack = False
+enable_codebuild_stack = False
+enable_codestar_stack = False
+enable_config_stack = False
 enable_custom_resource_stack = False
 enable_documentdb_stack = False
-enable_ec2_stack = True
+enable_ec2_stack = False
 enable_ecr_stack = False
 enable_ecs_pattern_stack = False
 enable_efs_stack = False
 enable_eks_stack = False
 enable_events_stack = False
-enable_guard_duty_stack = True
+enable_guard_duty_stack = False
 enable_inspector_stack = False
 enable_iot_stack = False
 enable_kms_stack = False
 enable_lake_formation_stack = False
-enable_lambda_stack = True
+enable_lambda_stack = False
 enable_machine_learning_stack = False
 enable_multi_target_alb_stack = False
 enable_rds_stack = False
@@ -122,7 +124,7 @@ enable_windows_stack = False
 
 net = NetworkingStack(
     app,
-    "CdkPythonNetworkingStack",
+    "NetworkingStack",
     # waf=waf_stack.waf,
     removal_policy=RemovalPolicy.DESTROY,
     cross_region_references=True,
@@ -134,6 +136,14 @@ if enable_vpc_endpoint_stack:
         app,
         "VpcEndpointStack",
         vpc=net.vpc,
+        removal_policy=RemovalPolicy.DESTROY,
+        env=default_env,
+    )
+
+if enable_appconfig_stack:
+    AppConfigStack(
+        app,
+        "AppConfigStack",
         removal_policy=RemovalPolicy.DESTROY,
         env=default_env,
     )
